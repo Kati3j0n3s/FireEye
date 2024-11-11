@@ -1,0 +1,16 @@
+For now, this is a text file to help organize the creation of the 	
+tables.
+
+This creates a database file where all the tables would be stored.
+sqlite3 fireeye_data.db
+
+This creates the base table, will need to be modified for additional
+data when added.
+
+CREATE TABLE base_data_template (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+	temperature REAL,
+	humidity REAL,
+	moisture_level REAL
+);
