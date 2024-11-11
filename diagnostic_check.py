@@ -1,7 +1,10 @@
 # Diagnostic check to be run initially and when called if
 # user calls for it.
 
-def diagnostic_check():
+
+
+# Accept ALL GPIO pins as parameters
+def diagnostic_check(BtnPin, TempPin, HumidityPin):
     print("initializing diagnostics...")
 
     try:
@@ -18,8 +21,9 @@ def diagnostic_check():
 
     except Exception as e:
         print(f"diagnostic check failed: {e}")
-
+        return False
 
 
 
     print("finished diagnostic")
+    return True
