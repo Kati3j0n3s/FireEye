@@ -30,7 +30,7 @@ def main():
 if __name__ == "__main__":
 
   # Button press indicates re-diagnostic (single press) or rest (long press, 10s)
-  configure_button()
+  # configure_button()
 
   try:
     main()

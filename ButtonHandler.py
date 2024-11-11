@@ -1,4 +1,8 @@
 # Duration of LONG_PRESS in seconds
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BOARD)
+BtnPin = 12
 LONG_PRESS = 10
 
 def configure_button():
