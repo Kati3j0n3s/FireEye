@@ -3,8 +3,8 @@ import RPi.GPIO as GPIO
 import time
 
 # Referencing the other py files
-from start_up_sequence import start_up_sequence()
-from diagnostic_check import diagnostic_check()
+from StartUpSequence import *
+from Diagnostic import *
 from ButtonHandler import *
 
 # Establishing sensor pins via physical pin numbering

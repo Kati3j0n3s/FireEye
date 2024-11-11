@@ -4,7 +4,7 @@
 
 
 # Referencing other py files
-from diagnostic_check import diagnostic_check()
+from Diagnostic import *
 
 def start_up_sequence(BtnPin, TempPin, HumidityPin):
     print("Starging up...")
