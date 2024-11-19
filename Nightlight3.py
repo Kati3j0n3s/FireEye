@@ -11,7 +11,7 @@ IR = 25
 
 LIGHT_THRESHOLD = 150
 
-led_on = True
+led_on = False
 
 def setup():
 	# Board Setup Type
@@ -29,6 +29,15 @@ def setup():
 	GPIO.output(Rpin, GPIO.HIGH)
 	GPIO.output(Gpin, GPIO.HIGH)
 	GPIO.output(Bpin, GPIO.HIGH)
+	
+	light_value = ADC.read(0)
+	print(f"Initial Light Level: {light_value}")
+	if light_value < LIGHT_THRESHOLD:
+		set_led_state(True)
+	else:
+		set_led_state(False)
+		
+	time.sleep(1) # Maybe fore IR sensor initialization setup time?
 	
 # Sets the RGB to specific state of either ON or OFFs
 def set_led_state(state):
@@ -52,24 +61,18 @@ def motion_and_light_control():
 	light_value = ADC.read(0)
 	print(f"Light Level: {light_value}")
 	
-	if light_value < LIGHT_THRESHOLD and GPIO.input(IR) == GPIO.LOW:
+	if light_value > LIGHT_THRESHOLD and GPIO.input(IR) == GPIO.LOW and not led_on:
 		print("MOTION DETECTED")
 		set_led_state(True)
 		time.sleep(30)
 		set_led_state(False)
-		
-		
-	# This code (for testing) is used to just turn on the light when it's dark
-	# if light_value > LIGHT_THRESHOLD:
-		# print("It's dark")
-		# set_led_state(True)
 
 	
 
 def loop():
 	while True:
 		touch_control()
-		if led_on == False:
+		if not led_on:
 			print(" ")
 			motion_and_light_control()
 		time.sleep(0.1) # Not sure if this is necessary, may need to remove
