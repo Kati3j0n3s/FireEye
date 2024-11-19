@@ -32,10 +32,12 @@ def setup():
 	
 	light_value = ADC.read(0)
 	print(f"Initial Light Level: {light_value}")
-	if light_value < LIGHT_THRESHOLD:
-		set_led_state(True)
-	else:
-		set_led_state(False)
+	# if light_value > LIGHT_THRESHOLD:
+		# set_led_state(True)
+	# else:
+		# set_led_state(False)
+		
+	set_led_state(False)
 		
 	time.sleep(1) # Maybe fore IR sensor initialization setup time?
 	
@@ -43,9 +45,9 @@ def setup():
 def set_led_state(state):
 	global led_on
 	led_on = state
-	GPIO.output(Rpin, state)
-	GPIO.output(Gpin, state)
-	GPIO.output(Bpin, state)
+	GPIO.output(Rpin, GPIO.LOW if state else GPIO.HIGH)
+	GPIO.output(Gpin, GPIO.LOW if state else GPIO.HIGH)
+	GPIO.output(Bpin, GPIO.LOW if state else GPIO.HIGH)
 	print(f"LED State Set TO: {'OFF' if state else 'ON'}")
 	
 	
@@ -54,6 +56,7 @@ def touch_control():
 	if GPIO.input(TouchPin) == GPIO.HIGH:
 		led_on = not led_on
 		set_led_state(led_on)
+		print(f"Touch Detected! LED State: {'ON' if led_on else 'OFF'}")
 		time.sleep(0.3)
 		
 def motion_and_light_control():
@@ -61,20 +64,24 @@ def motion_and_light_control():
 	light_value = ADC.read(0)
 	print(f"Light Level: {light_value}")
 	
-	if light_value > LIGHT_THRESHOLD and GPIO.input(IR) == GPIO.LOW and not led_on:
+	ir_state = GPIO.input(IR)
+	print(f"IR Motion Sensor State: {'Motion Detected' if ir_state == GPIO.LOW else 'No Motion Detected'}")
+	
+	if light_value > LIGHT_THRESHOLD and ir_state == GPIO.LOW and not led_on:
 		print("MOTION DETECTED")
 		set_led_state(True)
 		time.sleep(30)
 		set_led_state(False)
+	else:
+		print("Conditions not met for turning on LEDs")
 
 	
 
 def loop():
 	while True:
 		touch_control()
-		if not led_on:
-			print(" ")
-			motion_and_light_control()
+		print("Checking motion and light conditions...")
+		motion_and_light_control()
 		time.sleep(0.1) # Not sure if this is necessary, may need to remove
 
 
