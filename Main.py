@@ -1,6 +1,8 @@
 '''
-Before I go any further, I'm going to create some sort of diagram to help me out in coding. 
-I already feel that I need one.
+When Raspberry Pi is turned on, it will automatically run this file.
+
+This file would house configurations and the logic for calling
+the functions when required.
 '''
 
 
@@ -20,33 +22,38 @@ BtnPin = 12
 TempPin = 11
 HumidityPin = 13
 
-# MAKE SURE TO ADD THIS INTO THE MAIN LOOP
+# Sets up the sensors.
 def setup():
   GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP) # Probably need to change PUD_UP
   GPIO.setup(TempPin, GPIO.IN)
   GPIO.setup(HumidityPin, GPIO.IN)
+  
 
-# Need to rename this, just have the 'main' loop be the python one
-def main():
-  # Try to start up, if it fails enters a loop to re-run diagnostics
-  start_up_status = start_up_sequence(BtnPin, TempPin, HumidityPin)
-  while not start_up_status:
-    print("System idle due to to failed diagnostics. Wating for diagnostics to pass...")
-    time.sleep(5)
-    start_up_status = start_up_sequence(BtnPin, TempPin, HumidityPin)
+'''
+When called, it will run once for the initial diagnostic before continuing on.
 
-  # As long as start_up_sequence() succeded, then look for user prompts
-  print("System is now idle, ready for user commands.")
+NOTE: I'll add it here, but it may be beneficial to have it in its own file.
+'''
+def start_up():
+  # Run diagnostic_check()
+  # If it gives back failed, indicate what failed via screen and light
+  # NOTE: Will need to add that logic within diagnostic_check().
+  # Wait until diagnostic has been run (or reset) and has given a success
+  # If success then green light then....
+  # Run battery life check -> separate file as well cause that will be it's own issues
+  # If battery life is greater than 20 minutes (may need a percentage) continue on
+  # Else give warning of battery life and do not continue on.
+  
+  
+  
 
 
 
 if __name__ == "__main__":
 
-  # Button press indicates re-diagnostic (single press) or rest (long press, 10s)
-  # configure_button()
-
   try:
-    main()
+    setup()
+    start_up()
     while True:
       time.sleep(1) # Keeps looping to keep program alive
 
