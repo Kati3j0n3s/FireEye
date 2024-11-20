@@ -14,3 +14,26 @@ CREATE TABLE base_data_template (
 	humidity REAL,
 	moisture_level REAL
 );
+
+
+CREATE Flights (
+	FlightID INT AUTO_INCREMENT PK
+	Flight
+	Date
+	StartTime
+	EndTime -- Can be NULL till completion
+	Duration -- Can be NULL till completion
+	FlightDataLink
+)
+
+CREATE FlightData (
+	DataID
+	FlightID
+	Timestamp -- Every 10(?) seconds
+	Latitude
+	Longitude
+	Altitude
+	Temperature
+	Humidity
+	ImagePath -- Labled with appropriate time
+)
