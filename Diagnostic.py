@@ -1,5 +1,10 @@
-# Diagnostic check to be run initially and when called if
-# user calls for it.
+'''
+Diagostic.py is a diagnostic check meant to run in start_up and any
+time the button is pressed.
+
+ADD THE LIGHT AND SCREEN LOGIC
+'''
+# Importing Libraries
 import RPi.GPIO as GPIO
 
 BtnPin = 12
