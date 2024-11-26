@@ -1,7 +1,7 @@
 # Duration of LONG_PRESS in seconds
 import RPi.GPIO as GPIO
 
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 BtnPin = 12
 LONG_PRESS = 10
 

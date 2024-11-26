@@ -1,9 +1,3 @@
-'''
-When Raspberry Pi is turned on, it will automatically run this file.
-
-This file would house configurations and the logic for calling
-the functions when required.
-'''
 
 
 # Importing Libraries
@@ -15,12 +9,15 @@ import time
 from StartUpSequence import *
 from Diagnostic import *
 from ButtonHandler import *
+from UsingAllSensors import *
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)
 BtnPin = 12
-TempPin = 11
-HumidityPin = 13
+TempPin = 7
+HumidityPin = 16
+
+db18b20 = ''
 
 # Sets up the sensors.
 def setup():
@@ -44,9 +41,7 @@ def start_up():
   # If battery life is greater than 20 minutes (may need a percentage) continue on
   # Else give warning of battery life and do not continue on.
   
-  
-  
-
+  diagnostic_check(BtnPin, TempPin, HumidityPin)
 
 
 if __name__ == "__main__":
@@ -54,8 +49,8 @@ if __name__ == "__main__":
   try:
     setup()
     start_up()
-    while True:
-      time.sleep(1) # Keeps looping to keep program alive
+    data()
+    time.sleep(1) # Keeps looping to keep program alive
 
   except KeyboardInterrupt:
     GPIO.cleanup()

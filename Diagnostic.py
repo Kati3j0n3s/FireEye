@@ -6,19 +6,32 @@ ADD THE LIGHT AND SCREEN LOGIC
 '''
 # Importing Libraries
 import RPi.GPIO as GPIO
+import os
 
 BtnPin = 12
 TempPin = 11
 HumidityPin = 13
 
+ds18b20 = ''
+sensor_prefix = '28-'
+
 # Accept ALL GPIO pins as parameters
 def diagnostic_check(BtnPin, TempPin, HumidityPin):
     print("initializing diagnostics...")
 
-    GPIO.setmode(GPIO.BOARD)
+    #GPIO.setmode(GPIO.BCM)
     GPIO.setup(BtnPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(TempPin, GPIO.IN)
     GPIO.setup(HumidityPin, GPIO.IN)
+	#global ds18b20
+	#sensor_prefix = '28-'
+	# for i in os.listdir('/sys/bus/w1/devices'):
+		# if i.startswith(sensor_prefix):
+			# ds18b20 = i
+			# break
+			
+	# if not ds18b20:
+		# raise RuntimeError("No DS18b20 sensor dectedted!")
     
     try:
         if GPIO.input(BtnPin) == 0:
@@ -30,6 +43,12 @@ def diagnostic_check(BtnPin, TempPin, HumidityPin):
         if GPIO.input(HumidityPin) == 0:
             print("Diagnostic failed: Humidity Sensor not responding.")
             return False
+        for i in os.listdir('/sys/bus/w1/devices'):
+            if i.startswith(sensor_prefix):
+                ds18b20 = i
+                break
+        if not ds18b20:
+            raise RuntimeError("No DS18b20 sensor dectedted!")
 
 
     except Exception as e:
