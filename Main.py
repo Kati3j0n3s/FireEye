@@ -1,8 +1,8 @@
-
-
 # Importing Libraries
 import RPi.GPIO as GPIO
 import PCF8591 as ADC   # Not needed yet, but I think I do....
+import Adafruit_BMP.BMP085 as BMP085
+import smbus
 import time
 
 # Referencing the other py files
@@ -17,15 +17,23 @@ GPIO.setmode(GPIO.BCM)
 # Configuring Pins
 BtnPin = 18
 TempPin = 7
-HumidityPin = 16
+HumPin = 16
 
+# Temp Pin Setup
 db18b20 = ''
+
+# Bar Pin Setup
+barometer_sensor = None
+bus = smbus.SMBus(1)
 
 # Sets up the sensors.
 def setup():
   GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(TempPin, GPIO.IN)
-  GPIO.setup(HumidityPin, GPIO.IN)
+  GPIO.setup(HumPin, GPIO.IN)
+  
+  global barometer_sensor
+  barometer_sensor = BMP085.BMP085(bus)
 
 # Start up sequence
 def start_up():
@@ -38,11 +46,11 @@ def start_up():
   # If battery life is greater than 20 minutes (may need a percentage) continue on
   # Else give warning of battery life and do not continue on.
   
-  diagnostic_check(BtnPin, TempPin, HumidityPin)
+  diagnostic_check(BtnPin, TempPin, HumPin, BarPin)
 
 
 if __name__ == "__main__":
-  GPIO.cleanup()
+  # GPIO.cleanup() -- Not needed atm, but kept
 
   try:
     setup()
@@ -58,5 +66,5 @@ if __name__ == "__main__":
     print("Exiting Program")
     
   finally:
-    button_handler.cleanup()
+    #button_handler.cleanup()
     GPIO.cleanup()
