@@ -1,7 +1,7 @@
 # Importing Libraries
 import RPi.GPIO as GPIO
 import PCF8591 as ADC   # Not needed yet, but I think I do....
-import Adafruit_BMP.BMP085 as BMP085
+#import Adafruit_BMP.BMP180 as BMP180
 import smbus
 import time
 
@@ -10,6 +10,7 @@ from StartUpSequence import *
 from Diagnostic import *
 from ButtonHandler import ButtonHandler
 from UsingAllSensors import *
+from Adafruit_BMP import BMP085
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)
@@ -23,17 +24,15 @@ HumPin = 16
 db18b20 = ''
 
 # Bar Pin Setup
-barometer_sensor = None
 bus = smbus.SMBus(1)
+barometer_sensor = BMP085.BMP085(busnum=1)
+
 
 # Sets up the sensors.
 def setup():
   GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(TempPin, GPIO.IN)
   GPIO.setup(HumPin, GPIO.IN)
-  
-  global barometer_sensor
-  barometer_sensor = BMP085.BMP085(bus)
 
 # Start up sequence
 def start_up():
@@ -46,7 +45,7 @@ def start_up():
   # If battery life is greater than 20 minutes (may need a percentage) continue on
   # Else give warning of battery life and do not continue on.
   
-  diagnostic_check(BtnPin, TempPin, HumPin, BarPin)
+  diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor)
 
 
 if __name__ == "__main__":

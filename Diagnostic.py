@@ -21,7 +21,7 @@ ds18b20 = ''
 sensor_prefix = '28-'
 
 # Accept ALL GPIO pins as parameters
-def diagnostic_check(BtnPin, TempPin, HumPin):
+def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor):
     print("initializing diagnostics...")
 
     #GPIO.setup(BtnPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -43,7 +43,7 @@ def diagnostic_check(BtnPin, TempPin, HumPin):
             try:
                 ds18b20 = check_ds18b20_sensor()
                 if ds18b20:
-                    print(f"Temperature Sensor (DS18b20): Read successful, Current Temperature = {temp}C.")
+                    print(f"Temperature Sensor (DS18b20): Read successful.")
                 else:
                     print(f"Diagnostic failed: DS18b20 sensor unable to read data.")
                 
@@ -61,7 +61,6 @@ def diagnostic_check(BtnPin, TempPin, HumPin):
                 print(f"Diagnostic failed: Humidity Sensor unable to read data. Error {e}")
                 
         # Diagnosing Barometer Sensor
-        barometer_sensor = BMP085.BMP085()
         try:
             pressure = barometer_sensor.read_pressure()
             print(f"Barometer Sensor: Powered and producing data, Pressure = {pressure} Pa.")
