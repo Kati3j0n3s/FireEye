@@ -3,6 +3,10 @@ Diagostic.py is a diagnostic check meant to run in start_up and any
 time the button is pressed.
 
 ADD THE LIGHT AND SCREEN LOGIC
+
+
+So it knows when it's powered on/off, but not if it's capable to 
+output some signal
 '''
 # Importing Libraries
 import RPi.GPIO as GPIO
@@ -19,19 +23,9 @@ sensor_prefix = '28-'
 def diagnostic_check(BtnPin, TempPin, HumidityPin):
     print("initializing diagnostics...")
 
-    #GPIO.setmode(GPIO.BCM)
     GPIO.setup(BtnPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(TempPin, GPIO.IN)
     GPIO.setup(HumidityPin, GPIO.IN)
-	#global ds18b20
-	#sensor_prefix = '28-'
-	# for i in os.listdir('/sys/bus/w1/devices'):
-		# if i.startswith(sensor_prefix):
-			# ds18b20 = i
-			# break
-			
-	# if not ds18b20:
-		# raise RuntimeError("No DS18b20 sensor dectedted!")
     
     try:
         if GPIO.input(BtnPin) == 0:

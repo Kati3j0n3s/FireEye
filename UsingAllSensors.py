@@ -11,18 +11,13 @@ import os
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)
-BtnPin = 12
 TempPin = 7
-HumidityPin = 16
-#BarPin = 
 
 # Global Variable Initialization
 ds18b20 = ''
 
 def setup():
-	GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 	GPIO.setup(TempPin, GPIO.IN)
-	GPIO.setup(HumidityPin, GPIO.IN)
 	# Setting up the DS28b20 Temperature Sensor
 	global ds18b20
 	sensor_prefix = '28-'

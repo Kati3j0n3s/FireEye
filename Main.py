@@ -8,7 +8,7 @@ import time
 # Referencing the other py files
 from StartUpSequence import *
 from Diagnostic import *
-from ButtonHandler import *
+from ButtonHandler import ButtonHandler
 from UsingAllSensors import *
 
 # Configures GPIO to use Broadcom chip numbering scheme.
@@ -21,7 +21,7 @@ db18b20 = ''
 
 # Sets up the sensors.
 def setup():
-  GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP) # Probably need to change PUD_UP
+  #GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP) # Probably need to change PUD_UP
   GPIO.setup(TempPin, GPIO.IN)
   GPIO.setup(HumidityPin, GPIO.IN)
   
@@ -47,10 +47,15 @@ def start_up():
 if __name__ == "__main__":
 
   try:
+    button_handler = ButtonHandler(pin = 12, LONG_PRESS = 10)
     setup()
     start_up()
     data()
     time.sleep(1) # Keeps looping to keep program alive
 
   except KeyboardInterrupt:
+    print("Exiting Program")
+    
+  finally:
+    button_handler.cleanup()
     GPIO.cleanup()
