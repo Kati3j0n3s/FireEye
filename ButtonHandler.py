@@ -70,8 +70,8 @@ class ButtonHandler:
         self.LONG_PRESS = LONG_PRESS
         self.PRESS_START = None
         
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+        #GPIO.setmode(GPIO.BCM)
+        #GPIO.setup(self.BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
         
         GPIO.add_event_detect(self.BtnPin, GPIO.BOTH, callback = self.button_pressed_callback, bouncetime = 100)
         

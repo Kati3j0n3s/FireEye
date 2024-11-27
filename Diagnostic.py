@@ -23,9 +23,9 @@ sensor_prefix = '28-'
 def diagnostic_check(BtnPin, TempPin, HumidityPin):
     print("initializing diagnostics...")
 
-    GPIO.setup(BtnPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(TempPin, GPIO.IN)
-    GPIO.setup(HumidityPin, GPIO.IN)
+    #GPIO.setup(BtnPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    #GPIO.setup(TempPin, GPIO.IN)
+    #GPIO.setup(HumidityPin, GPIO.IN)
     
     try:
         if GPIO.input(BtnPin) == 0:

@@ -1,42 +1,73 @@
 import sqlite3
 from datetime import datetime
 
-# This establishes a connection to the FireEye Database
-# CURRENTLY NOT CREATED
+# This establishes a creation or connection to the FireEye Database
 def connect_db(db_name='fireeye_data.db'):
     conn = sqlite3.connect(db_name)
     return conn
 
 # This creates a table if it doesn't exist
-def create_run_table(conn):
+def create_tables(conn):
     cursor = conn.cursor()
-    # Creates a table if it doesn't exist, make sure to add any additions when implemented
-    create_table_query = """
-    CREATE TABLE IF NOT EXISTS sensor_data(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,					-- Unique identifier for each entry
-        run_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, 		-- Timestamp of the pass/run
-        temperature REAL,										-- Temperature reading
-        humidity REAL,											-- Humidity reading
-        run_id TEXT,											-- Unique ID for each run, timestamp or UUID
+    
+    # Creates Flights Table
+    create_flights_query = """
+    CREATE TABLE IF NOT EXISTS Flights(
+        FlightID INTEGER PRIMARY KEY AUTOINCREMENT,				-- Unique Flight ID for each flight
+        FlightNum TEXT,                                         -- Flight Number
+        date DATE,                                              -- Date of flight
+        start_time DATETIME,                                    -- Start time of flight
+        end_time DATETIME,                                      -- End of flight, NULL initially
+        duration INTEGER,                                       -- Duration of fligh, NULL initially
+        datalink INTEGER,                                       -- Foreign key to Flight Data table
+        FOREIGN KEY (datalink) REFERENCES Flight_Data(DataID)   -- Link to Flight Data Table
     );
     """
-    cursor.execute(create_table_query)
+    
+    create_flight_data_query = """
+    CREATE TABLE IF NOT EXISTS Flight_Data(
+        DataID INTEGER PRIMARY KEY AUTOINCREMENT,               -- Unique Data ID for each data entry
+        FlightID INTEGER,                                       -- Foreign key linking to Flights table
+        timestamp DATETIME,                                     -- Timestamp when data is recorded
+        lat REAL,                                               -- Latitude
+        log REAL,                                              -- Longitude
+        alt REAL,                                               -- Altitude
+        temp REAL,                                              -- Temperature
+        humidity REAL,                                          -- Humidity
+        image_path TEXT,                                        -- Path to image
+        FORIEGN KEY (FlightID) REFERENCES Flights(FlightID)     -- Link to Flights Table
+    );
+    """
+    
+    cursor.execute(create_flights_query)
+    cursor.execute(create_flight_data_query)
+    conn.commit()
+
+# Insert flight data into Fights table
+def insert_flight(conn, FlightNum, date, start_time, datalink=None):
+    cursor = conn.cursor()
+    query="""
+    INSERT INTO Flights (FlightNum, date, start_time, datalink)
+    VALUES (?, ?, ?, ?)
+    """
+    cursor.execute(query, (FlightNum, date, start_time, datalink))
     conn.commit()
     
-# Retrieves and inserts all the data into database
-def insert_sensor_data(conn, temperature, humidity, run_id):
+# Retrieves and inserts all the data into Flight_Data table
+def insert_flight_data(conn, FlightID, timestamp, lat, log, alt, temp, humidity, image_path):
+    
     cursor = conn.cursor()
     query = """
-    INSERT INTO sensor_data (temperature, humidity, run_id)
-    VALUES (?, ?, ?)
+    INSERT INTO Flight_Data (FlightID, timestamp, lat, log, alt, temp, humidity, image_path)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """
-    cursor.execute(insert_query, (temperature, humidity, run_id))
+    cursor.execute(insert_query, (FlightID, timestamp, lat, log, alt, temp, humidity, image_path))
     conn.commit()
     
 # Retrieves all the data for the specific run indicated
-def get_data_by_run(conn, run_id):
+def get_flight_data(conn, FlightID):
     cursor = conn.cursor()
-    query = "SELECT * FROM sensor_data WHERE run_id = ?"
+    query = "SELECT * FROM Flight_Data WHERE FlightID = ?"
     cursor.execute(query, (run_id,))
     return cursor.fetchall()
 

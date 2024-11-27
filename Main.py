@@ -13,7 +13,9 @@ from UsingAllSensors import *
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)
-BtnPin = 12
+
+# Configuring Pins
+BtnPin = 18
 TempPin = 7
 HumidityPin = 16
 
@@ -21,16 +23,11 @@ db18b20 = ''
 
 # Sets up the sensors.
 def setup():
-  #GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP) # Probably need to change PUD_UP
+  GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(TempPin, GPIO.IN)
   GPIO.setup(HumidityPin, GPIO.IN)
-  
 
-'''
-When called, it will run once for the initial diagnostic before continuing on.
-
-NOTE: I'll add it here, but it may be beneficial to have it in its own file.
-'''
+# Start up sequence
 def start_up():
   # Run diagnostic_check()
   # If it gives back failed, indicate what failed via screen and light
@@ -45,12 +42,16 @@ def start_up():
 
 
 if __name__ == "__main__":
+  GPIO.cleanup()
 
   try:
-    button_handler = ButtonHandler(pin = 12, LONG_PRESS = 10)
     setup()
     start_up()
-    data()
+    # For now, cause it's dumb, giving up on button implementation
+    # button_handler = ButtonHandler(pin = BtnPin, LONG_PRESS = 10)
+    
+    # Temp testing
+    # data()
     time.sleep(1) # Keeps looping to keep program alive
 
   except KeyboardInterrupt:
