@@ -63,7 +63,8 @@ def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor):
         # Diagnosing Barometer Sensor
         try:
             pressure = barometer_sensor.read_pressure()
-            print(f"Barometer Sensor: Powered and producing data, Pressure = {pressure} Pa.")
+            altitude = barometer_sensor.read_altitude()
+            print(f"Barometer Sensor: Powered and producing data, Pressure = {pressure} Pa, Altitude = {altitude} meters.")
         except Exception as e:
             print(f"Diagnostic failed: Barometer Sensor unable to read data. Error {e}")
 
