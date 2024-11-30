@@ -4,13 +4,15 @@ import PCF8591 as ADC   # Not needed yet, but I think I do....
 import smbus
 import time
 
+import Adafruit_DHT
+
 # Referencing the other py files
 from StartUpSequence import *
 from Diagnostic import *
 from ButtonHandler import ButtonHandler
 from UsingAllSensors import *
 from Adafruit_BMP import BMP085
-import Adafruit_DHT
+# import Adafruit_DHT
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)
@@ -18,7 +20,7 @@ GPIO.setmode(GPIO.BCM)
 # Configuring Pins
 BtnPin = 18
 TempPin = 7
-HumPin = 16
+HumPin = 23 # or 16
 
 # Temp Pin Setup
 db18b20 = ''

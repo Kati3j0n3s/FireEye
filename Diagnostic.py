@@ -11,14 +11,16 @@ output some signal
 # Importing Libraries
 import RPi.GPIO as GPIO
 import os
+import Adafruit_DHT
 
 BtnPin = 12
-TempPin = 11
-HumPin = 13
+TempPin = 7
+HumPin = 23
 
 # Temp sensor setup
 ds18b20 = ''
 sensor_prefix = '28-'
+
 
 # Accept ALL GPIO pins as parameters
 def diagnostic_check(BtnPin, TempPin, HumPin, hum_sensor, barometer_sensor):
@@ -56,8 +58,12 @@ def diagnostic_check(BtnPin, TempPin, HumPin, hum_sensor, barometer_sensor):
             print("Diagnostic failed: Humidity Sensor not powered.")
         else:
             try:
-                humidity = read_humidity_sensor()
-                print(f"Humidity Sensor: Read successful, Current Humidity = {humidity}%.")
+                # humidity = read_humidity_sensor(Adafruit_DHT.DHT11)
+                humidity, temperature = Adafruit_DHT.read_retry(hum_sensor, HumPin)
+                if humidity is not None and temperature is not None:
+                    print(f"Humidity Sensor: Read successful, Current Humidity = {humidity}%.")
+                else:
+                    print("Diagnostic failed: Humidity sensor unable to read data.")
             except Exception as e:
                 print(f"Diagnostic failed: Humidity Sensor unable to read data. Error {e}")
                 
@@ -69,14 +75,6 @@ def diagnostic_check(BtnPin, TempPin, HumPin, hum_sensor, barometer_sensor):
             print(f"Barometer Sensor: Powered and producting data, Altitude = {altitude} meters.")
         except Exception as e:
             print(f"Diagnostic failed: Barometer Sensor unable to read data. Error {e}")
-
-
-        # for i in os.listdir('/sys/bus/w1/devices'):
-            # if i.startswith(sensor_prefix):
-                # ds18b20 = i
-                # break
-        # if not ds18b20:
-            # raise RuntimeError("No DS18b20 sensor dectedted!")
 
 
     except Exception as e:
@@ -114,3 +112,10 @@ def read_temperature(sensor_id):
         return round (fahrenheit_temp, 2)
     else:
         raise RuntimeError("Failed to read temperature data from DS18b20 sensor.")
+        
+# def read_humidity(hum_sensor):
+    # humidity, temperature = Adafruit_DHT.read_retry(hum_sensor, HumPin)
+    # if humidity is not None:
+        # return round(humidity, 2)
+    # else:
+        # raise RuntimeError("Failed to read humidity data from sensor.")
