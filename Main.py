@@ -1,7 +1,6 @@
 # Importing Libraries
 import RPi.GPIO as GPIO
 import PCF8591 as ADC   # Not needed yet, but I think I do....
-#import Adafruit_BMP.BMP180 as BMP180
 import smbus
 import time
 
@@ -11,7 +10,6 @@ from Diagnostic import *
 from ButtonHandler import ButtonHandler
 from UsingAllSensors import *
 from Adafruit_BMP import BMP085
-from Adafruit_DHT import *
 import Adafruit_DHT
 
 # Configures GPIO to use Broadcom chip numbering scheme.
