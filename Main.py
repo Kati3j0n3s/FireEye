@@ -11,6 +11,8 @@ from Diagnostic import *
 from ButtonHandler import ButtonHandler
 from UsingAllSensors import *
 from Adafruit_BMP import BMP085
+from Adafruit_DHT import *
+import Adafruit_DHT
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)
@@ -22,6 +24,9 @@ HumPin = 16
 
 # Temp Pin Setup
 db18b20 = ''
+
+# Hum Pin Setup
+hum_sensor = Adafruit_DHT.DHT22 # Can change to DHT11
 
 # Bar Pin Setup
 bus = smbus.SMBus(1)
@@ -45,7 +50,7 @@ def start_up():
   # If battery life is greater than 20 minutes (may need a percentage) continue on
   # Else give warning of battery life and do not continue on.
   
-  diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor)
+  diagnostic_check(BtnPin, TempPin, HumPin, hum_sensor, barometer_sensor)
 
 
 if __name__ == "__main__":
