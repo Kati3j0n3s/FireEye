@@ -3,6 +3,9 @@ import sqlite3
 from Diagnostic import *
 from ReadData import *
 from datetime import datetime
+from CameraData import *
+from picamzero import *
+
 
 # This establishes a creation or connection to the FireEye Database
 def connect_db(db_name='fireeye_data.db'):
@@ -94,10 +97,20 @@ def complete_flight(conn, FlightID, end_time):
     conn.commit()
     
 # This simulates collecting data every 20 seconds for 40 seconds
-def start_data_collection(conn, barometer_sensor):
+def start_data_collection(conn, barometer_sensor, camera):
+    # Creating directory for saved images
+    base_image_directory = "/home/username/FireEye GitHub/FireEye/FireEye Images"
+    
+    if not os.path.exists(base_image_directory):
+        os.makedirs(base_image_directory)
+    
     flight_name = f"Flight {str(conn.execute('SELECT COUNT(*) FROM Flights').fetchone()[0] + 1).zfill(3)}"
     date = datetime.now().date()
     start_time = datetime.now()
+    
+    # Create a directory for the flight's images
+    flight_image_directory = os.path.join(base_image_directory, flight_name)
+    os.makedirs(flight_image_directory, exist_ok=True)
     
     # Insert a new flight record
     flight_id = insert_flight(conn, flight_name, date, start_time)
@@ -110,10 +123,23 @@ def start_data_collection(conn, barometer_sensor):
         alt = read_alt(barometer_sensor)
         temp = 25.0 + i # read_temp(sensor_id)
         humidity = 50.0 - i
-        image_path = f"images/image{i}.jpg"
+
+        # Generate the image path
+        image_name = f"image_{i}_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
+        image_path = os.path.join(flight_image_directory, image_name)
+        
+        # Capture an image using the take_picture function
+        try:
+            if take_picture(camera, image_path):
+                print(f"Image successfully saved: {image_path}")
+            else:
+                print(f"Failed to save image: {image_path}")
+        except Exception as e:
+            print(f"Error capturing image: {e}")
+            image_path = None
         
         insert_flight_data(conn, flight_id, timestamp, lat, log, alt, temp, humidity, image_path)
-        time.sleep(5) # Wait for 20 seconds
+        time.sleep(5) # Wait for 5 seconds
         print("Inserted data.")
         
     end_time = datetime.now()

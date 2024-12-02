@@ -14,6 +14,7 @@ import os
 #import ReadData
 
 from ReadData import *
+from CameraData import *
 
 # Establishing Pins
 BtnPin = 12
@@ -26,7 +27,7 @@ sensor_prefix = '28-'
 
 
 # Accept ALL GPIO pins as parameters
-def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor):
+def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor, camera):
     print("initializing diagnostics...")
     
     try:
@@ -73,7 +74,16 @@ def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor):
             print(f"Barometer Sensor: Powered and producing data, Altitude = {altitude} meters.")
         except Exception as e:
             print(f"Diagnostic failed: Barometer Sensor unable to read data. Error {e}")
-
+            
+        # Diagnosing Camera
+        try:
+            if test_image(camera):
+                print("Camera diagnostic: Success! Camera is functional and can take pictures.")
+            else:
+                print("Diagnostic failed: Camera could not capture an image.")
+        except Exception as e:
+            print(f"Diagnostic failed: Camera error. Error: {e}")
+        
 
     except Exception as e:
         print(f"Diagnostic check failed: {e}")
