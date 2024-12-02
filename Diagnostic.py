@@ -55,7 +55,7 @@ def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor):
             print("Diagnostic failed: Humidity Sensor not powered.")
         else:
             try:
-                humidity = ReadData.read_hum(HumPin)
+                humidity = ReadData.read_hum()
                 if humidity is not None:
                     print(f"Humidity Sensor: Read successful, Current Humidity = {humidity}%.")
                 else:

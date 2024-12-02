@@ -1,32 +1,8 @@
-'''
-**********************************************************************
-* Filename    : dht11.py
-* Description : test for SunFoudner DHT11 humiture & temperature module
-* Author      : Dream
-* Brand       : SunFounder
-* E-mail      : service@sunfounder.com
-* Website     : www.sunfounder.com
-* Update      : Dream    2016-09-30    New release
-**********************************************************************
-'''
 #!/usr/bin/env python3
 import RPi.GPIO as GPIO
 import time
 
-DHTPIN = 23 # Originally 17
-
-GPIO.setmode(GPIO.BCM)
-
-MAX_UNCHANGE_COUNT = 100
-
-STATE_INIT_PULL_DOWN = 1
-STATE_INIT_PULL_UP = 2
-STATE_DATA_FIRST_PULL_DOWN = 3
-STATE_DATA_PULL_UP = 4
-STATE_DATA_PULL_DOWN = 5
-
-# DHTPIN replaced with HumPin
-def read_dht11_dat(DHTPIN):
+def read_dht11_dat():
 	DHTPIN = 23
 
 	GPIO.setmode(GPIO.BCM)
@@ -128,26 +104,3 @@ def read_dht11_dat(DHTPIN):
 		return False
 
 	return the_bytes[0], the_bytes[2]
-
-# def main():
-	# print ("Raspberry Pi wiringPi DHT11 Temperature test program\n")
-	# while True:
-		# result = read_dht11_dat()
-		# if result:
-			# # Original
-			# # humidity, temperature = result
-			# # print ("humidity: %s %%,  Temperature: %s C`" % (humidity, temperature))
-			
-			# # To use for FireEye
-			# humidity = result
-			# print(f"Humidity Sensor: Read successful, Current Humidity = {humidity}%.")
-		# time.sleep(1)
-
-# def destroy():
-	# GPIO.cleanup()
-
-# if __name__ == '__main__':
-	# try:
-		# main()
-	# except KeyboardInterrupt:
-		# destroy() 
