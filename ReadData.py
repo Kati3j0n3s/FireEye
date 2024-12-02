@@ -1,16 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-#import Humiture
-
 from Humiture import *
-
-# MAX_UNCHANGE_COUNT = 100
-# STATE_INIT_PULL_DOWN = 1
-# STATE_INIT_PULL_UP = 2
-# STATE_DATA_FIRST_PULL_DOWN = 3
-# STATE_DATA_PULL_UP = 4
-# STATE_DATA_PULL_DOWN = 5
 
 # Gets a single temp data value
 def read_temp(sensor_id):
@@ -44,10 +35,11 @@ def read_pre(barometer_sensor):
 def read_hum():
 	result = read_dht11_dat()
 	if not result:
-		print("error")
+		return None
 	else:
-		humidity = temperature = result
-		print(f"{humidity} {temperature}")
+		humidity, temperature = result
+		print(f"{humidity}")
+		return humidity
 	
 
 	

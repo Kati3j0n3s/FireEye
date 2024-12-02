@@ -11,9 +11,11 @@ output some signal
 # Importing Libraries
 import RPi.GPIO as GPIO
 import os
-import ReadData
+#import ReadData
 
+from ReadData import *
 
+# Establishing Pins
 BtnPin = 12
 TempPin = 7
 HumPin = 23
@@ -42,7 +44,7 @@ def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor):
             try:
                 ds18b20 = check_ds18b20_sensor()
                 if ds18b20:
-                    temperature = ReadData.read_temp(ds18b20)
+                    temperature = read_temp(ds18b20)
                     print(f"Temperature Sensor (DS18b20): Read successful, Current Temperature: {temperature}\u00b0F")
                 else:
                     print(f"Diagnostic failed: DS18b20 sensor unable to read data.")
@@ -55,7 +57,7 @@ def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor):
             print("Diagnostic failed: Humidity Sensor not powered.")
         else:
             try:
-                humidity = ReadData.read_hum()
+                humidity = read_hum()
                 if humidity is not None:
                     print(f"Humidity Sensor: Read successful, Current Humidity = {humidity}%.")
                 else:
@@ -65,8 +67,8 @@ def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor):
                 
         # Diagnosing Barometer Sensor
         try:
-            pressure = ReadData.read_pre(barometer_sensor)
-            altitude = ReadData.read_alt(barometer_sensor)
+            pressure = read_pre(barometer_sensor)
+            altitude = read_alt(barometer_sensor)
             print(f"Barometer Sensor: Powered and producing data, Pressure = {pressure} Pa.")
             print(f"Barometer Sensor: Powered and producing data, Altitude = {altitude} meters.")
         except Exception as e:

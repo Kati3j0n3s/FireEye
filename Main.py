@@ -3,6 +3,7 @@ import RPi.GPIO as GPIO
 import PCF8591 as ADC   # Not needed yet, but I think I do....
 import smbus
 import time
+import sqlite3
 
 # Referencing the other py files
 from StartUpSequence import *
@@ -11,7 +12,8 @@ from ButtonHandler import ButtonHandler
 from UsingAllSensors import *
 from ReadData import *
 from Adafruit_BMP import BMP085
-
+from Database import *
+from datetime import datetime
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)
@@ -47,6 +49,10 @@ def start_up():
   # Else give warning of battery life and do not continue on.
   
   diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor)
+  
+def collecting_data(conn, barometer_sensor):
+  start_data_collection(conn, barometer_sensor)
+
 
 
 if __name__ == "__main__":
@@ -54,17 +60,20 @@ if __name__ == "__main__":
 
   try:
     setup()
-    start_up()
+    #start_up()
     # For now, cause it's dumb, giving up on button implementation
     # button_handler = ButtonHandler(pin = BtnPin, LONG_PRESS = 10)
     
-    # Temp testing
-    # data()
+    conn = connect_db()
+    create_tables(conn)
+    collecting_data(conn, barometer_sensor)
+    
     time.sleep(1) # Keeps looping to keep program alive
 
-  except KeyboardInterrupt:
-    print("Exiting Program")
+  except Exception as e:
+    print(f"Error: {e}")
     
   finally:
-    #button_handler.cleanup()
     GPIO.cleanup()
+    if conn: 
+      conn.close()

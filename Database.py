@@ -1,4 +1,7 @@
 import sqlite3
+
+from Diagnostic import *
+from ReadData import *
 from datetime import datetime
 
 # This establishes a creation or connection to the FireEye Database
@@ -10,17 +13,18 @@ def connect_db(db_name='fireeye_data.db'):
 def create_tables(conn):
     cursor = conn.cursor()
     
+    # cursor.execute("DROP TABLE IF EXISTS Flights")
+    # cursor.execute("DROP TABLE IF EXISTS Flight_Data")
+    
     # Creates Flights Table
     create_flights_query = """
     CREATE TABLE IF NOT EXISTS Flights(
         FlightID INTEGER PRIMARY KEY AUTOINCREMENT,				-- Unique Flight ID for each flight
-        FlightNum TEXT,                                         -- Flight Number
+        FlightName TEXT,                                        -- Flight Name
         date DATE,                                              -- Date of flight
         start_time DATETIME,                                    -- Start time of flight
         end_time DATETIME,                                      -- End of flight, NULL initially
-        duration INTEGER,                                       -- Duration of fligh, NULL initially
-        datalink INTEGER,                                       -- Foreign key to Flight Data table
-        FOREIGN KEY (datalink) REFERENCES Flight_Data(DataID)   -- Link to Flight Data Table
+        duration INTEGER                                       -- Duration of fligh, NULL initially
     );
     """
     
@@ -34,8 +38,7 @@ def create_tables(conn):
         alt REAL,                                               -- Altitude
         temp REAL,                                              -- Temperature
         humidity REAL,                                          -- Humidity
-        image_path TEXT,                                        -- Path to image
-        FORIEGN KEY (FlightID) REFERENCES Flights(FlightID)     -- Link to Flights Table
+        image_path TEXT                                        -- Path to image
     );
     """
     
@@ -44,14 +47,17 @@ def create_tables(conn):
     conn.commit()
 
 # Insert flight data into Fights table
-def insert_flight(conn, FlightNum, date, start_time, datalink=None):
+def insert_flight(conn, FlightName, date, start_time):
     cursor = conn.cursor()
     query="""
-    INSERT INTO Flights (FlightNum, date, start_time, datalink)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO Flights (FlightName, date, start_time)
+    VALUES (?, ?, ?)
     """
-    cursor.execute(query, (FlightNum, date, start_time, datalink))
+    cursor.execute(query, (FlightName, date, start_time))
     conn.commit()
+    
+    
+    return cursor.lastrowid
     
 # Retrieves and inserts all the data into Flight_Data table
 def insert_flight_data(conn, FlightID, timestamp, lat, log, alt, temp, humidity, image_path):
@@ -61,17 +67,61 @@ def insert_flight_data(conn, FlightID, timestamp, lat, log, alt, temp, humidity,
     INSERT INTO Flight_Data (FlightID, timestamp, lat, log, alt, temp, humidity, image_path)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """
-    cursor.execute(insert_query, (FlightID, timestamp, lat, log, alt, temp, humidity, image_path))
+    cursor.execute(query, (FlightID, timestamp, lat, log, alt, temp, humidity, image_path))
     conn.commit()
     
-# Retrieves all the data for the specific run indicated
-def get_flight_data(conn, FlightID):
+# Updates Flight with end_time and duration
+def complete_flight(conn, FlightID, end_time):
     cursor = conn.cursor()
-    query = "SELECT * FROM Flight_Data WHERE FlightID = ?"
-    cursor.execute(query, (run_id,))
-    return cursor.fetchall()
-
+    query = """
+    UPDATE Flights
+    SET end_time = ?, duration = ?
+    WHERE FlightID = ?
+    """
+    
+    # Fetch start_time for the given FlightID
+    start_time_query = "SELECT start_time FROM Flights WHERE FlightID = ?"
+    cursor.execute(start_time_query, (FlightID,))
+    result = cursor.fetchone()
+    
+    if result is None:
+        raise ValueError(f"No flight found with FlightID {FlightID}")
+        
+    start_time = datetime.fromisoformat(result[0])
+    
+    duration = (end_time - start_time).total_seconds()
+    cursor.execute(query, (end_time, duration, FlightID))
+    conn.commit()
+    
+# This simulates collecting data every 20 seconds for 40 seconds
+def start_data_collection(conn, barometer_sensor):
+    flight_name = f"Flight {str(conn.execute('SELECT COUNT(*) FROM Flights').fetchone()[0] + 1).zfill(3)}"
+    date = datetime.now().date()
+    start_time = datetime.now()
+    
+    # Insert a new flight record
+    flight_id = insert_flight(conn, flight_name, date, start_time)
+    
+    # Semi-simulated data collection
+    for i in range(2):
+        timestamp = datetime.now()
+        lat = 34.05 + i * 0.01
+        log = -117.25 + i * 0.01
+        alt = read_alt(barometer_sensor)
+        temp = 25.0 + i # read_temp(sensor_id)
+        humidity = 50.0 - i
+        image_path = f"images/image{i}.jpg"
+        
+        insert_flight_data(conn, flight_id, timestamp, lat, log, alt, temp, humidity, image_path)
+        time.sleep(5) # Wait for 20 seconds
+        print("Inserted data.")
+        
+    end_time = datetime.now()
+    complete_flight(conn, flight_id, end_time)
+    
+    print("Data collection complete!")
+    
+    
 # Terminates database connection
 def close_db(conn):
     conn.close()
-    
