@@ -100,7 +100,8 @@ def complete_flight(conn, FlightID, end_time):
     cursor.execute(query, (end_time, duration, FlightID))
     conn.commit()
     
-# This simulates collecting data every 20 seconds for 40 seconds
+# This simulates collecting data every time.sleep(number of seconds) for total of number of seconds * range(num)
+# Basically, multiply the time.sleep value by range value and you get total collection time.
 def start_data_collection(conn, barometer_sensor, camera):
     # Creating directory for saved images
     base_image_directory = "/home/username/FireEye GitHub/FireEye/FireEye Images"
@@ -120,7 +121,7 @@ def start_data_collection(conn, barometer_sensor, camera):
     flight_id = insert_flight(conn, flight_name, date, start_time)
     
     # Semi-simulated data collection
-    for i in range(2):
+    for i in range(4):
         timestamp = datetime.now()
         lat = 34.05 + i * 0.01
         log = -117.25 + i * 0.01
@@ -151,7 +152,7 @@ def start_data_collection(conn, barometer_sensor, camera):
         
         
         insert_flight_data(conn, flight_id, timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path)
-        time.sleep(20) # Wait for 5 seconds
+        time.sleep(15) # Wait for _ seconds
         print("Inserted data.")
         
     end_time = datetime.now()
