@@ -23,7 +23,9 @@ def read_temp(sensor_id):
 # Gets a single altitude data value
 def read_alt(barometer_sensor):
 	try:
-		return barometer_sensor.read_altitude()
+		altitude_meters = barometer_sensor.read_altitude()
+		altitude_feet = round(altitude_meters * 3.28084, 3)
+		return altitude_feet
 	except Exception as e:
 		raise RuntimeError(f"Failed to read altitude data: {e}")
 

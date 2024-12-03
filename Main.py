@@ -30,6 +30,9 @@ barometer_sensor = BMP085.BMP085(busnum=1)
 # Camera Setup
 camera = Camera()
 
+# Constants
+COLLECTING_DATA_ALTITUDE_THRESHOLD = 2
+
 # Sets up the sensors.
 def setup():
   GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
@@ -40,6 +43,9 @@ def setup():
 # Start up sequence
 def start_up():
   diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor, camera)
+  
+  starting_alt = read_alt(barometer_sensor)
+  return starting_alt
   
 def collecting_data(conn, barometer_sensor):
   start_data_collection(conn, barometer_sensor, camera)
@@ -53,8 +59,24 @@ if __name__ == "__main__":
     setup()
     
     # Runs initial diagnostic
-    start_up()
+    starting_alt = start_up()
     
+    
+    # This checks for when the sensor pack is 10ft off the starting altitude
+    print(f"Starting altitude: {starting_alt} ft")
+    
+    current_alt = starting_alt
+    while True:
+      current_alt = read_alt(barometer_sensor)
+      altitude_diff = abs(current_alt - starting_alt)
+      
+      print(f"Current Altitude: {current_alt} ft. | Difference: {round(altitude_diff, 3)} ft.")
+      
+      if altitude_diff >= COLLECTING_DATA_ALTITUDE_THRESHOLD:
+        print(f"Altitude threshold reached: {altitude_diff} ft. Starting data collection.")
+        break
+        
+      time.sleep(0.5)
     
     
     # Starts collecting data and adding to database
