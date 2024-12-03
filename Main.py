@@ -53,7 +53,7 @@ if __name__ == "__main__":
     setup()
     
     # Runs initial diagnostic
-    #start_up()
+    start_up()
     
     
     

@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 import Adafruit_DHT
+import math
 
 DHT_SENSOR = Adafruit_DHT.DHT11
 
@@ -34,30 +35,41 @@ def read_pre(barometer_sensor):
 		raise RuntimeError(f"Failed to read pressure data: {e}")
 	
 	
-# ------------------------------------------------------------------------#	
-# WILL NOT WORK, need to implement it, probably in the Database.py
+# Calculating the CBI based on temp and humidity
 # Link: https://www.n5pa.com/wxcbicalc01.php
-# ADD THE DANGER CLASS, color code not terribly important
-# import math
+def calculate_cbi(temp, humidity):
+    """
+    Calculate the CBI (Custom Burn Index) based on temperature and humidity.
 
-# def calculate_cbi(temp, humidity):
-    # """
-    # Calculate the CBI (Custom Burn Index) based on temperature and humidity.
+    Parameters:
+    temp (float): Temperature (T) in degrees.
+    humidity (float): Relative Humidity (RH) in percentage.
 
-    # Parameters:
-    # temp (float): Temperature (T) in degrees.
-    # humidity (float): Relative Humidity (RH) in percentage.
+    Returns:
+    float: The calculated CBI value.
+    """
+    cbi = (0.0167 * (104.5 - (1.373 * humidity) + (0.54 * temp)) * 
+           (124 * math.pow(10, (-0.0142 * humidity))))
+    return cbi
 
-    # Returns:
-    # float: The calculated CBI value.
-    # """
-    # cbi = (0.0167 * (104.5 - (1.373 * humidity) + (0.54 * temp)) * 
-           # (124 * math.pow(10, (-0.0142 * humidity))))
-    # return cbi
+def determine_danger_class(CBI):
+    """
+    Determine the Danger Class based on the CBI value.
 
-# # Example usage:
-# temp = 30.0  # Example temperature in degrees
-# humidity = 50.0  # Example relative humidity in percentage
-# cbi_value = calculate_cbi(temp, humidity)
-# print(f"The calculated CBI is: {cbi_value}")
+    Parameters:
+    cbi (float): The calculated CBI value.
+
+    Returns:
+    str: The danger class ('L', 'M', 'H', 'VH', or 'E').
+    """
+    if CBI < 50:
+        return 'Low (L)'
+    elif 50 <= CBI < 75:
+        return 'Moderate (M)'
+    elif 75 <= CBI < 90:
+        return 'High (H)'
+    elif 90 <= CBI < 97.5:
+        return 'Very High (VH)'
+    else:
+        return 'Extreme (E)'
 

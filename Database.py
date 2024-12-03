@@ -8,7 +8,6 @@ from picamzero import *
 
 sensor_id = check_ds18b20_sensor()
 
-
 # This establishes a creation or connection to the FireEye Database
 def connect_db(db_name='fireeye_data.db'):
     conn = sqlite3.connect(db_name)
@@ -29,7 +28,7 @@ def create_tables(conn):
         date DATE,                                              -- Date of flight
         start_time DATETIME,                                    -- Start time of flight
         end_time DATETIME,                                      -- End of flight, NULL initially
-        duration INTEGER                                       -- Duration of fligh, NULL initially
+        duration INTEGER                                        -- Duration of fligh, NULL initially
     );
     """
     
@@ -41,8 +40,11 @@ def create_tables(conn):
         lat REAL,                                               -- Latitude
         log REAL,                                               -- Longitude
         alt REAL,                                               -- Altitude
+        pre REAL,                                               -- Pressure
         temp REAL,                                              -- Temperature
         humidity REAL,                                          -- Humidity
+        CBI REAL,                                               -- CBI Calculation
+        DangerClass TEXT,                                       -- Fire Danger Class indication
         image_path TEXT                                         -- Path to image
     );
     """
@@ -65,14 +67,14 @@ def insert_flight(conn, FlightName, date, start_time):
     return cursor.lastrowid
     
 # Retrieves and inserts all the data into Flight_Data table
-def insert_flight_data(conn, FlightID, timestamp, lat, log, alt, temp, humidity, image_path):
+def insert_flight_data(conn, FlightID, timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path):
     
     cursor = conn.cursor()
     query = """
-    INSERT INTO Flight_Data (FlightID, timestamp, lat, log, alt, temp, humidity, image_path)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO Flight_Data (FlightID, timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
-    cursor.execute(query, (FlightID, timestamp, lat, log, alt, temp, humidity, image_path))
+    cursor.execute(query, (FlightID, timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path))
     conn.commit()
     
 # Updates Flight with end_time and duration
@@ -140,8 +142,15 @@ def start_data_collection(conn, barometer_sensor, camera):
         except Exception as e:
             print(f"Error capturing image: {e}")
             image_path = None
+            
+        # Calculate CBI and give Danger Class
+        CBI = calculate_cbi(temp, humidity)
         
-        insert_flight_data(conn, flight_id, timestamp, lat, log, alt, temp, humidity, image_path)
+        # Determine Danger Class
+        DangerClass = determine_danger_class(CBI)
+        
+        
+        insert_flight_data(conn, flight_id, timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path)
         time.sleep(20) # Wait for 5 seconds
         print("Inserted data.")
         
