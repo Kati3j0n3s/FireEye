@@ -121,7 +121,7 @@ def start_data_collection(conn, barometer_sensor, camera):
     flight_id = insert_flight(conn, flight_name, date, start_time)
     
     # Semi-simulated data collection
-    for i in range(4):
+    for i in range(3):
         timestamp = datetime.now()
         lat = 34.05 + i * 0.01
         log = -117.25 + i * 0.01
@@ -152,7 +152,7 @@ def start_data_collection(conn, barometer_sensor, camera):
         
         
         insert_flight_data(conn, flight_id, timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path)
-        time.sleep(15) # Wait for _ seconds
+        time.sleep(7) # Wait for _ seconds
         print("Inserted data.")
         
     end_time = datetime.now()

@@ -31,7 +31,7 @@ barometer_sensor = BMP085.BMP085(busnum=1)
 camera = Camera()
 
 # Constants
-COLLECTING_DATA_ALTITUDE_THRESHOLD = 2
+COLLECTING_DATA_ALTITUDE_THRESHOLD = 4
 
 # Sets up the sensors.
 def setup():
