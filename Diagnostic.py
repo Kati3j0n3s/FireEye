@@ -11,15 +11,25 @@ output some signal
 # Importing Libraries
 import RPi.GPIO as GPIO
 import os
-#import ReadData
+import time
 
 from ReadData import *
 from CameraData import *
+from humiture import *
 
 # Establishing Pins
 BtnPin = 12
 TempPin = 7
-HumPin = 23
+HumPin = 24
+
+# Humidity Constants
+MAX_UNCHANGE_COUNT = 100
+
+STATE_INIT_PULL_DOWN = 1
+STATE_INIT_PULL_UP = 2
+STATE_DATA_FIRST_PULL_DOWN = 3
+STATE_DATA_PULL_UP = 4
+STATE_DATA_PULL_DOWN = 5
 
 # Temp sensor setup
 ds18b20 = ''
@@ -58,8 +68,8 @@ def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor, camera):
             print("Diagnostic failed: Humidity Sensor not powered.")
         else:
             try:
-                humidity = read_hum()
-                if humidity is not None:
+                humidity = hum_main()
+                if humidity:
                     print(f"Humidity Sensor: Read successful, Current Humidity = {humidity}%.")
                 else:
                     print("Diagnostic failed: Humidity sensor unable to read data.")
@@ -97,3 +107,4 @@ def check_ds18b20_sensor():
         if i.startswith(sensor_prefix):
             return i
     return None
+

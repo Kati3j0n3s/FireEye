@@ -1,10 +1,12 @@
 import RPi.GPIO as GPIO
 import time
+import Adafruit_DHT
 
-from Humiture import *
+DHT_SENSOR = Adafruit_DHT.DHT11
 
 # Gets a single temp data value
 def read_temp(sensor_id):
+	
     sensor_file = f'/sys/bus/w1/devices/{sensor_id}/w1_slave'
     with open(sensor_file, 'r') as f:
         lines = f.readlines()
@@ -30,16 +32,32 @@ def read_pre(barometer_sensor):
 		return barometer_sensor.read_pressure()
 	except Exception as e:
 		raise RuntimeError(f"Failed to read pressure data: {e}")
-
-# Gets a single humidity data value
-def read_hum():
-	result = read_dht11_dat()
-	if not result:
-		return None
-	else:
-		humidity, temperature = result
-		print(f"{humidity}")
-		return humidity
 	
-
 	
+# ------------------------------------------------------------------------#	
+# WILL NOT WORK, need to implement it, probably in the Database.py
+# Link: https://www.n5pa.com/wxcbicalc01.php
+# ADD THE DANGER CLASS, color code not terribly important
+# import math
+
+# def calculate_cbi(temp, humidity):
+    # """
+    # Calculate the CBI (Custom Burn Index) based on temperature and humidity.
+
+    # Parameters:
+    # temp (float): Temperature (T) in degrees.
+    # humidity (float): Relative Humidity (RH) in percentage.
+
+    # Returns:
+    # float: The calculated CBI value.
+    # """
+    # cbi = (0.0167 * (104.5 - (1.373 * humidity) + (0.54 * temp)) * 
+           # (124 * math.pow(10, (-0.0142 * humidity))))
+    # return cbi
+
+# # Example usage:
+# temp = 30.0  # Example temperature in degrees
+# humidity = 50.0  # Example relative humidity in percentage
+# cbi_value = calculate_cbi(temp, humidity)
+# print(f"The calculated CBI is: {cbi_value}")
+

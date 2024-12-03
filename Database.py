@@ -6,6 +6,8 @@ from datetime import datetime
 from CameraData import *
 from picamzero import *
 
+sensor_id = check_ds18b20_sensor()
+
 
 # This establishes a creation or connection to the FireEye Database
 def connect_db(db_name='fireeye_data.db'):
@@ -37,11 +39,11 @@ def create_tables(conn):
         FlightID INTEGER,                                       -- Foreign key linking to Flights table
         timestamp DATETIME,                                     -- Timestamp when data is recorded
         lat REAL,                                               -- Latitude
-        log REAL,                                              -- Longitude
+        log REAL,                                               -- Longitude
         alt REAL,                                               -- Altitude
         temp REAL,                                              -- Temperature
         humidity REAL,                                          -- Humidity
-        image_path TEXT                                        -- Path to image
+        image_path TEXT                                         -- Path to image
     );
     """
     
@@ -121,8 +123,9 @@ def start_data_collection(conn, barometer_sensor, camera):
         lat = 34.05 + i * 0.01
         log = -117.25 + i * 0.01
         alt = read_alt(barometer_sensor)
-        temp = 25.0 + i # read_temp(sensor_id)
-        humidity = 50.0 - i
+        pre = read_pre(barometer_sensor)
+        temp = read_temp(sensor_id)
+        humidity = hum_main()
 
         # Generate the image path
         image_name = f"image_{i}_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
@@ -139,7 +142,7 @@ def start_data_collection(conn, barometer_sensor, camera):
             image_path = None
         
         insert_flight_data(conn, flight_id, timestamp, lat, log, alt, temp, humidity, image_path)
-        time.sleep(5) # Wait for 5 seconds
+        time.sleep(20) # Wait for 5 seconds
         print("Inserted data.")
         
     end_time = datetime.now()
