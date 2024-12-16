@@ -14,6 +14,7 @@ from datetime import datetime
 from CameraData import *
 from picamzero import *
 from humiture import *
+import LED
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)
@@ -22,6 +23,9 @@ GPIO.setmode(GPIO.BCM)
 BtnPin = 18
 TempPin = 7
 HumPin = 23
+RPin = 5
+GPin = 6
+BPin = 13
 
 # Bar Pin Setup
 bus = smbus.SMBus(1)
@@ -38,14 +42,15 @@ def setup():
   GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(TempPin, GPIO.IN)
   GPIO.setup(HumPin, GPIO.IN)
-  #camera.start_preview()
+  GPIO.setup(RPin, GPIO.OUT)
+  GPIO.setup(GPin, GPIO.OUT)
+  GPIO.setup(BPin, GPIO.OUT)
+  #GPIO.add_event_detect(BtnPin, GPIO.BOTH, callback=detect, bouncetime=200)
+  
 
 # Start up sequence
 def start_up():
   diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor, camera)
-  
-  starting_alt = read_alt(barometer_sensor)
-  return starting_alt
   
 def collecting_data(conn, barometer_sensor):
   start_data_collection(conn, barometer_sensor, camera)
@@ -55,28 +60,58 @@ if __name__ == "__main__":
   # GPIO.cleanup() -- Not needed atm, but kept
 
   try:
-    # Sets up the necessary pins
     setup()
+    LED.stop()
+    start_up()
     
-    # Runs initial diagnostic
-    starting_alt = start_up()
+    """Set Sensor Pack Mode"""
+    '''
+    Let's have start_up() actually contain the select mode function(s).
+    But essentially, when diagnostic is done, have LED be white to 
+    indicate it's waiting for mode selection. Have user select the mode.
+    Single Press - Walking
+    Long Press - Drone
+    
+    DRONE MODE SELECTED:
+    Have the LED start to pulse green, indicating that it's waiting to reach
+    a higher altitude
+    - Since it's gonna be on a drone. I don't need to implement the
+      collecting light.
+    
+    WALK MODE SELECTED:
+    Have the LED be solid green, indicating that it's ready to take
+    a collection (via press of 'mode' button)
+    
+    While it's collecting have it be solid yellow, indicating it is
+    still collecting data
+    - COMPLICATION: Need a non blurry picture, may have it take 3 to 5
+      or so (and add it to the db) and have CompV determine which of 
+      them isn't blurry, and use it for analysis.
+    
+    COMPLICATION:
+    How do I cancel the mode?
     
     
+    '''
+    
+    
+
     # This checks for when the sensor pack is 10ft off the starting altitude
-    print(f"Starting altitude: {starting_alt} ft")
+    # LED.solid(GPin)
+    # print(f"Starting altitude: {starting_alt} ft")
     
-    current_alt = starting_alt
-    while True:
-      current_alt = read_alt(barometer_sensor)
-      altitude_diff = abs(current_alt - starting_alt)
+    # current_alt = starting_alt
+    # while True:
+      # current_alt = read_alt(barometer_sensor)
+      # altitude_diff = abs(current_alt - starting_alt)
       
-      print(f"Current Altitude: {current_alt} ft. | Difference: {round(altitude_diff, 3)} ft.")
+      # print(f"Current Altitude: {current_alt} ft. | Difference: {round(altitude_diff, 3)} ft.")
       
-      if altitude_diff >= COLLECTING_DATA_ALTITUDE_THRESHOLD:
-        print(f"Altitude threshold reached: {altitude_diff} ft. Starting data collection.")
-        break
+      # if altitude_diff >= COLLECTING_DATA_ALTITUDE_THRESHOLD:
+        # print(f"Altitude threshold reached: {altitude_diff} ft. Starting data collection.")
+        # break
         
-      time.sleep(0.5)
+      # time.sleep(0.5)
     
     
     # Starts collecting data and adding to database
@@ -92,5 +127,5 @@ if __name__ == "__main__":
     
   finally:
     GPIO.cleanup()
-    if conn: 
-      conn.close()
+    #if conn: UNCOMMENT WHEN FIXED
+      #conn.close() UNCOMMENT WHEN FIXED

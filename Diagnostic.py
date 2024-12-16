@@ -1,12 +1,6 @@
 '''
 Diagostic.py is a diagnostic check meant to run in start_up and any
 time the button is pressed.
-
-ADD THE LIGHT AND SCREEN LOGIC
-
-
-So it knows when it's powered on/off, but not if it's capable to 
-output some signal
 '''
 # Importing Libraries
 import RPi.GPIO as GPIO
@@ -16,6 +10,7 @@ import time
 from ReadData import *
 from CameraData import *
 from humiture import *
+import LED
 
 # Establishing Pins
 BtnPin = 12
@@ -38,6 +33,9 @@ sensor_prefix = '28-'
 
 # Accept ALL GPIO pins as parameters
 def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor, camera):
+    # Color Indicator
+    LED.pulse('blue')
+    
     print("initializing diagnostics...")
     
     try:
@@ -93,13 +91,17 @@ def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor, camera):
                 print("Diagnostic failed: Camera could not capture an image.")
         except Exception as e:
             print(f"Diagnostic failed: Camera error. Error: {e}")
+            
+        
         
 
     except Exception as e:
+        LED.solid('red')
         print(f"Diagnostic check failed: {e}")
         return False
 
     print("finished diagnostic")
+    LED.stop()
     return True
     
 def check_ds18b20_sensor():
