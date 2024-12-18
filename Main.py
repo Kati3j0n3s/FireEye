@@ -18,7 +18,7 @@ import LED
 import Mode
 
 # Configures GPIO to use Broadcom chip numbering scheme.
-GPIO.setmode(GPIO.BCM)
+#GPIO.setmode(GPIO.BCM)
 
 # Configuring Pins
 Btn1 = 18
@@ -41,6 +41,7 @@ COLLECTING_DATA_ALTITUDE_THRESHOLD = 4
 
 # Sets up the sensors.
 def setup():
+  GPIO.setmode(GPIO.BCM)
   GPIO.setup(Btn1, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(TempPin, GPIO.IN)
   GPIO.setup(HumPin, GPIO.IN)
@@ -48,8 +49,7 @@ def setup():
   GPIO.setup(GPin, GPIO.OUT)
   GPIO.setup(BPin, GPIO.OUT)
   #GPIO.add_event_detect(Btn1, GPIO.BOTH, callback=detect, bouncetime=200)
-  
-""" Removed start_up, only did a diagnostic check so doesn't matter. """ 
+
   
 def collecting_data(conn, barometer_sensor):
   start_data_collection(conn, barometer_sensor, camera)
@@ -64,13 +64,12 @@ if __name__ == "__main__":
     selected_mode = Mode.mode_select(Btn1)
     
     mode_functions = {
-      'drone' : Mode.drone_mode(),
-      'walk' : Mode.walk_mode()
+      'drone' : Mode.drone_mode,
+      'walk' : Mode.walk_mode
     }
     
-    mode_function = mode_functions.get(selected_mode)
-    if mode_function:
-      mode_function()
+    if selected_mode in mode_functions:
+      mode_functions[selected_mode]()
     else:
       print("Mode not selected")
     
@@ -125,9 +124,9 @@ if __name__ == "__main__":
     
     
     # Starts collecting data and adding to database
-    conn = connect_db()
-    create_tables(conn)
-    collecting_data(conn, barometer_sensor)
+    # conn = connect_db()
+    # create_tables(conn)
+    # collecting_data(conn, barometer_sensor)
     
     # Keeps looping to keep program alive
     time.sleep(1) 

@@ -46,7 +46,6 @@ def pulse(color_name):
 	pwm_instances = []
 	for pin in pins:
 		if pin != 0:
-			GPIO.setup(pin, GPIO.OUT) # Not sure if this is needed
 			pwm = GPIO.PWM(pin, 1000)
 			pwm.start(0)
 			pwm_instances.append(pwm)
@@ -74,22 +73,22 @@ def solid(color_name):
 	_stop_event.set()
 	time.sleep(0.1)
 	
+	pins = colors[color_name]
+	
 	for pwm in pwm_instances:
 		pwm.stop()
 	pwm_instances = []
-	
-	pins = colors[color_name]
 	
 	GPIO.output(RPin, GPIO.HIGH)
 	GPIO.output(GPin, GPIO.HIGH)
 	GPIO.output(BPin, GPIO.HIGH)	
 	
 	if pins[0] != 0:
-		GPIO.output(pins, GPIO.LOW)
+		GPIO.output(pins[0], GPIO.LOW)
 	if pins[1] != 0:
-		GPIO.output(pins, GPIO.LOW)
+		GPIO.output(pins[1], GPIO.LOW)
 	if pins[2] != 0:
-		GPIO.output(pins, GPIO.LOW)
+		GPIO.output(pins[2], GPIO.LOW)
 	
 def stop():
 	global pwm_instances
@@ -98,8 +97,10 @@ def stop():
 	
 	for pwm in pwm_instances:
 		pwm.stop()
-	pwm_instances = []
+	pwm_instances.clear()
 	
 	GPIO.output(RPin, GPIO.HIGH)
 	GPIO.output(GPin, GPIO.HIGH)
 	GPIO.output(BPin, GPIO.HIGH)
+
+
