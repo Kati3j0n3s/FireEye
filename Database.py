@@ -212,7 +212,7 @@ def collect_walk_data(conn, barometer_sensor, camera):
     pre = read_pre(barometer_sensor)
     print("pre added.")
     temp = read_temp(sensor_id)
-    print("temo added.")
+    print("temp added.")
     humidity = hum_main()
     print("hum added.")
 

@@ -82,11 +82,17 @@ def walk_btn(Btn):
 	press_start = time.time()
 	while GPIO.input(Btn) == GPIO.LOW:
 		pass
+		
 	press_duration = time.time() - press_start
 	
-	if 0 < press_duration < 2:
-		return True # Short press
-	return False # Not short press
+	if 0 < press_duration < 3:
+		print("short press, collecting data.")
+		return 'short'
+	elif press_duration > 3:
+		print("long press, returning to mode selection.")
+		return 'long'
+
+	return None
 	
 	
 def walk_mode(Btn, conn, barometer_sensor, camera):
@@ -95,10 +101,15 @@ def walk_mode(Btn, conn, barometer_sensor, camera):
 	while True:
 		LED.stop()
 		LED.solid('green')
-		if walk_btn(Btn):
+		
+		press_type = walk_btn(Btn)
+		if press_type == 'short':
 			print("Collecting Data.")
 			Database.collect_walk_data(conn, barometer_sensor, camera)
-		else:
+		elif press_type == 'long':
 			print("Exit Walk Mode")
+			LED.stop()
 			return
+		else:
+			print("invalid")
 	
