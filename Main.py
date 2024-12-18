@@ -18,7 +18,7 @@ import LED
 import Mode
 
 # Configures GPIO to use Broadcom chip numbering scheme.
-#GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BCM)
 
 # Configuring Pins
 Btn1 = 18
@@ -41,6 +41,7 @@ COLLECTING_DATA_ALTITUDE_THRESHOLD = 4
 
 # Sets up the sensors.
 def setup():
+  # GPIO Setups
   GPIO.setmode(GPIO.BCM)
   GPIO.setup(Btn1, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(TempPin, GPIO.IN)
@@ -48,8 +49,10 @@ def setup():
   GPIO.setup(RPin, GPIO.OUT)
   GPIO.setup(GPin, GPIO.OUT)
   GPIO.setup(BPin, GPIO.OUT)
-  #GPIO.add_event_detect(Btn1, GPIO.BOTH, callback=detect, bouncetime=200)
-
+  conn = connect_db()
+  create_tables(conn)
+  
+  
   
 def collecting_data(conn, barometer_sensor):
   start_data_collection(conn, barometer_sensor, camera)
@@ -64,7 +67,7 @@ if __name__ == "__main__":
     selected_mode = Mode.mode_select(Btn1)
     
     mode_functions = {
-      'drone' : Mode.drone_mode,
+      'drone' : lambda: Mode.drone_mode(barometer_sensor),
       'walk' : Mode.walk_mode
     }
     
@@ -102,31 +105,6 @@ if __name__ == "__main__":
     
     
     '''
-    
-    
-
-    # This checks for when the sensor pack is 10ft off the starting altitude
-    # LED.solid(GPin)
-    # print(f"Starting altitude: {starting_alt} ft")
-    
-    # current_alt = starting_alt
-    # while True:
-      # current_alt = read_alt(barometer_sensor)
-      # altitude_diff = abs(current_alt - starting_alt)
-      
-      # print(f"Current Altitude: {current_alt} ft. | Difference: {round(altitude_diff, 3)} ft.")
-      
-      # if altitude_diff >= COLLECTING_DATA_ALTITUDE_THRESHOLD:
-        # print(f"Altitude threshold reached: {altitude_diff} ft. Starting data collection.")
-        # break
-        
-      # time.sleep(0.5)
-    
-    
-    # Starts collecting data and adding to database
-    # conn = connect_db()
-    # create_tables(conn)
-    # collecting_data(conn, barometer_sensor)
     
     # Keeps looping to keep program alive
     time.sleep(1) 
