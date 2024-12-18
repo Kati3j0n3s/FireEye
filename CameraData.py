@@ -23,10 +23,10 @@ def take_picture(camera, image_path):
 	try:
 		camera.take_photo(image_path)
 		if os.path.exists(image_path):
-			print(f"Image saved successfully: {image_path}")
+			#print(f"Image saved successfully: {image_path}")
 			return True
 		else:
-			print(f"Failed to save the image at {image_path}")
+			#print(f"Failed to save the image at {image_path}")
 			return False
 	except Exception as e:
 		print(f"Error taking picture: {e}")

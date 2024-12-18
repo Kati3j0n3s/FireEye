@@ -39,35 +39,37 @@ def drone_mode(conn, barometer_sensor, camera):
 	LED.pulse('green')
 	
 	
-	# """ Drone Instructions """
-	# DATA_ALTITUDE_THRESHOLD = 10
+	""" Drone Instructions """
+	DATA_ALTITUDE_THRESHOLD = 10
 	
-	# starting_alt = ReadData.read_alt(barometer_sensor)
-	# while True:
-		# # Checks altitude every 2 seconds
-		# time.sleep(2)
-		# current_alt = ReadData.read_alt(barometer_sensor)
-		# altitude_diff = abs(current_alt - starting_alt)
+	starting_alt = ReadData.read_alt(barometer_sensor)
+	while True:
+		# Checks altitude every 2 seconds
+		time.sleep(2)
+		current_alt = ReadData.read_alt(barometer_sensor)
+		altitude_diff = abs(current_alt - starting_alt)
 		
-		# print(f"Current Altitude: {current_alt} ft. | Difference: {round(altitude_diff, 3)} ft.")
+		print(f"Current Altitude: {current_alt} ft. | Difference: {round(altitude_diff, 3)} ft.")
 		
-		# if altitude_diff >= DATA_ALTITUDE_THRESHOLD:
-			# print(f"Altitude threshold reached: {altitude_diff} ft. Starting data collection.")
-			# break
+		if altitude_diff >= DATA_ALTITUDE_THRESHOLD:
+			print(f"Altitude threshold reached: {altitude_diff} ft. Starting data collection.")
+			break
 			
 	# Simulated Full Flight Collection - NEED TO MODIFY FOR ACTUAL FLIGHT LATER!!!!
 	flight_start_time = datetime.now()
-
-	flight_id = Database.collect_flight_data(conn, barometer_sensor, camera, interval=20)
 	
-	# Simulated flight lasting 60 seconds
-	time.sleep(60)
+	# Getting flight_id from first call
+	flight_id = Database.collect_flight_data(conn, barometer_sensor, camera, interval=20, i = 0)
+
+	for i in range(1, 3):
+		Database.collect_flight_data(conn, barometer_sensor, camera, interval=20, i = i)
 		
 	flight_end_time = datetime.now()
 	flight_duration = (flight_end_time - flight_start_time).total_seconds()
 	
 	Database.complete_flight(conn, flight_id, flight_end_time)
-		
+	
+	LED.stop()
 	print("Flight data collection complete!")
 
 	
@@ -80,5 +82,8 @@ def walk_mode():
 	""" Light Indications """
 	LED.stop()
 	LED.solid('green')
+	
+	
+	
 	return None
 	

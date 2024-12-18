@@ -118,7 +118,7 @@ def complete_flight(conn, FlightID, end_time):
     
 # This simulates collecting data every time.sleep(number of seconds) for total of number of seconds * range(num)
 # Basically, multiply the time.sleep value by range value and you get total collection time.
-def collect_flight_data(conn, barometer_sensor, camera, interval = 20): # 20 Sec intervals
+def collect_flight_data(conn, barometer_sensor, camera, interval = 20, i = 0): # 20 Sec intervals
     # Creating directory for saved images
     base_image_directory = "/home/username/FireEye GitHub/FireEye/FireEye Images"
     
