@@ -73,17 +73,34 @@ def drone_mode(conn, barometer_sensor, camera):
 	print("Flight data collection complete!")
 
 	
-
+def walk_btn(Btn):
+	# Waiting for button press
+	while GPIO.input(Btn) == GPIO.HIGH:
+		pass
+		
+	# Measuring how long button pressed
+	press_start = time.time()
+	while GPIO.input(Btn) == GPIO.LOW:
+		pass
+	press_duration = time.time() - press_start
+	
+	if 0 < press_duration < 2:
+		return True # Short press
+	return False # Not short press
 	
 	
-	
-def walk_mode():
+def walk_mode(Btn, conn, barometer_sensor, camera):
 	print("WALK MODE")
 	""" Light Indications """
 	LED.stop()
 	LED.solid('green')
 	
+	walk_btn(Btn)
 	
-	
-	return None
+	if walk_btn(Btn):
+		print("Collecting Data.")
+		Database.collect_walk_data(conn, barometer_sensor, camera)
+	else:
+		print("Exit Walk Mode")
+		return
 	

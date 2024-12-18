@@ -1,10 +1,12 @@
 import sqlite3
+import LED
 
 from Diagnostic import *
 from ReadData import *
 from datetime import datetime
 from CameraData import *
 from picamzero import *
+
 
 sensor_id = check_ds18b20_sensor()
 
@@ -172,8 +174,58 @@ def collect_flight_data(conn, barometer_sensor, camera, interval = 20, i = 0): #
     time.sleep(interval)
     
     return flight_id
-
     
+    
+    
+def collect_walk_data(conn, barometer_sensor, camera):
+    LED.stop()
+    LED.pulse('yellow')
+    # Creating directory for saved images
+    base_image_directory = "/home/username/FireEye GitHub/FireEye/FireEye Images"
+    
+    if not os.path.exists(base_image_directory):
+        os.makedirs(base_image_directory)
+    
+    # Data Collection
+    timestamp = datetime.now()
+    lat = 0.01
+    log = 0.00
+    alt = read_alt(barometer_sensor)
+    pre = read_pre(barometer_sensor)
+    temp = read_temp(sensor_id)
+    humidity = hum_main()
+
+    # Generate the image path
+    image_name = f"walk_image_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
+    image_path = os.path.join(base_image_directory, image_name)
+    
+    # Capture an image using the take_picture function
+    try:
+        if take_picture(camera, image_path):
+            print(f"Image successfully saved: {image_path}")
+        else:
+            print(f"Failed to save image: {image_path}")
+    except Exception as e:
+        print(f"Error capturing image: {e}")
+        image_path = None
+        
+    # Calculate CBI and give Danger Class
+    CBI = calculate_cbi(temp, humidity)
+        
+    # Determine Danger Class
+    DangerClass = determine_danger_class(CBI)
+    
+    # Insert into Walk_Data Table
+    cursor = conn.cursor()
+    query = """
+    INSERT INTO Walk_Data (timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, imagepath)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+    cursor.execute(query, (timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, imagepath))
+    conn.commit()
+    
+    print("Walking Mode data collected and inserted successfully")
+    LED.stop()
     
 # Terminates database connection
 def close_db(conn):

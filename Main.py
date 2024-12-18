@@ -67,7 +67,7 @@ if __name__ == "__main__":
     
     mode_functions = {
       'drone' : lambda: Mode.drone_mode(conn, barometer_sensor, camera),
-      'walk' : Mode.walk_mode
+      'walk' : lambda: Mode.walk_mode(Btn1, conn, barometer_sensor, camera)
     }
     
     if selected_mode in mode_functions:
