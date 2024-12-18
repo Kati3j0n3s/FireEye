@@ -49,13 +49,8 @@ def setup():
   GPIO.setup(RPin, GPIO.OUT)
   GPIO.setup(GPin, GPIO.OUT)
   GPIO.setup(BPin, GPIO.OUT)
-  conn = connect_db()
-  create_tables(conn)
   
-  
-  
-def collecting_data(conn, barometer_sensor):
-  start_data_collection(conn, barometer_sensor, camera)
+
 
 
 if __name__ == "__main__":
@@ -63,11 +58,15 @@ if __name__ == "__main__":
     setup()
     #diagnostic_check(Btn1, TempPin, HumPin, barometer_sensor, camera)
     
+    # Database Setup
+    conn = connect_db()
+    create_tables(conn)
+    
     # Mode selection call
     selected_mode = Mode.mode_select(Btn1)
     
     mode_functions = {
-      'drone' : lambda: Mode.drone_mode(barometer_sensor),
+      'drone' : lambda: Mode.drone_mode(conn, barometer_sensor, camera),
       'walk' : Mode.walk_mode
     }
     

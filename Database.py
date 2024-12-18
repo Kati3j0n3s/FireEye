@@ -31,7 +31,7 @@ def create_tables(conn):
         duration INTEGER                                        -- Duration of fligh, NULL initially
     );
     """
-    
+    # Creates Flight_Data Table
     create_flight_data_query = """
     CREATE TABLE IF NOT EXISTS Flight_Data(
         DataID INTEGER PRIMARY KEY AUTOINCREMENT,               -- Unique Data ID for each data entry
@@ -46,6 +46,22 @@ def create_tables(conn):
         CBI REAL,                                               -- CBI Calculation
         DangerClass TEXT,                                       -- Fire Danger Class indication
         image_path TEXT                                         -- Path to image
+    );
+    """
+    
+    create_walk_data_query = """
+    CREATE TABLE IF NOT EXISTS Walk_Data(
+        DataID INTEGER PRIMARY KEY AUTOINCREMENT,               -- Unique Data ID for each data entry
+        timestamp DATETIME,                                     -- Timestamp when data is recorded
+        lat REAL,                                               -- Latitude
+        log REAL,                                               -- Longitude
+        alt REAL,                                               -- Altitude
+        pre REAL,                                               -- Pressure
+        temp REAL,                                              -- Temperature
+        humidity REAL,                                          -- Humidity
+        CBI REAL,                                               -- CBI Calculation
+        DangerClass TEXT,                                       -- Fire Danger Class Indication
+        image_path TEXT,                                        -- Path to image
     );
     """
     
@@ -102,7 +118,7 @@ def complete_flight(conn, FlightID, end_time):
     
 # This simulates collecting data every time.sleep(number of seconds) for total of number of seconds * range(num)
 # Basically, multiply the time.sleep value by range value and you get total collection time.
-def start_data_collection(conn, barometer_sensor, camera):
+def collect_flight_data(conn, barometer_sensor, camera, interval = 20): # 20 Sec intervals
     # Creating directory for saved images
     base_image_directory = "/home/username/FireEye GitHub/FireEye/FireEye Images"
     
@@ -120,45 +136,43 @@ def start_data_collection(conn, barometer_sensor, camera):
     # Insert a new flight record
     flight_id = insert_flight(conn, flight_name, date, start_time)
     
-    # Semi-simulated data collection
-    for i in range(3):
-        timestamp = datetime.now()
-        lat = 34.05 + i * 0.01
-        log = -117.25 + i * 0.01
-        alt = read_alt(barometer_sensor)
-        pre = read_pre(barometer_sensor)
-        temp = read_temp(sensor_id)
-        humidity = hum_main()
+    # Data Collection
+    timestamp = datetime.now()
+    lat = 0.01
+    log = 0.00
+    alt = read_alt(barometer_sensor)
+    pre = read_pre(barometer_sensor)
+    temp = read_temp(sensor_id)
+    humidity = hum_main()
 
-        # Generate the image path
-        image_name = f"image_{i}_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
-        image_path = os.path.join(flight_image_directory, image_name)
+    # Generate the image path
+    image_name = f"image_{i}_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
+    image_path = os.path.join(flight_image_directory, image_name)
         
-        # Capture an image using the take_picture function
-        try:
-            if take_picture(camera, image_path):
-                print(f"Image successfully saved: {image_path}")
-            else:
-                print(f"Failed to save image: {image_path}")
-        except Exception as e:
-            print(f"Error capturing image: {e}")
-            image_path = None
+    # Capture an image using the take_picture function
+    try:
+        if take_picture(camera, image_path):
+            print(f"Image successfully saved: {image_path}")
+        else:
+            print(f"Failed to save image: {image_path}")
+    except Exception as e:
+        print(f"Error capturing image: {e}")
+        image_path = None
             
-        # Calculate CBI and give Danger Class
-        CBI = calculate_cbi(temp, humidity)
+    # Calculate CBI and give Danger Class
+    CBI = calculate_cbi(temp, humidity)
         
-        # Determine Danger Class
-        DangerClass = determine_danger_class(CBI)
+    # Determine Danger Class
+    DangerClass = determine_danger_class(CBI)
         
         
-        insert_flight_data(conn, flight_id, timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path)
-        time.sleep(7) # Wait for _ seconds
-        print("Inserted data.")
-        
-    end_time = datetime.now()
-    complete_flight(conn, flight_id, end_time)
+    insert_flight_data(conn, flight_id, timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path)
+    print("Inserted data.")
     
-    print("Data collection complete!")
+    time.sleep(interval)
+    
+    return flight_id
+
     
     
 # Terminates database connection
