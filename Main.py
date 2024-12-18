@@ -15,12 +15,14 @@ from CameraData import *
 from picamzero import *
 from humiture import *
 import LED
+import Mode
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)
 
 # Configuring Pins
-BtnPin = 18
+Btn1 = 18
+# Btn2 = 25
 TempPin = 7
 HumPin = 23
 RPin = 5
@@ -39,30 +41,38 @@ COLLECTING_DATA_ALTITUDE_THRESHOLD = 4
 
 # Sets up the sensors.
 def setup():
-  GPIO.setup(BtnPin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+  GPIO.setup(Btn1, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(TempPin, GPIO.IN)
   GPIO.setup(HumPin, GPIO.IN)
   GPIO.setup(RPin, GPIO.OUT)
   GPIO.setup(GPin, GPIO.OUT)
   GPIO.setup(BPin, GPIO.OUT)
-  #GPIO.add_event_detect(BtnPin, GPIO.BOTH, callback=detect, bouncetime=200)
+  #GPIO.add_event_detect(Btn1, GPIO.BOTH, callback=detect, bouncetime=200)
   
-
-# Start up sequence
-def start_up():
-  diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor, camera)
+""" Removed start_up, only did a diagnostic check so doesn't matter. """ 
   
 def collecting_data(conn, barometer_sensor):
   start_data_collection(conn, barometer_sensor, camera)
 
 
 if __name__ == "__main__":
-  # GPIO.cleanup() -- Not needed atm, but kept
-
   try:
     setup()
-    LED.stop()
-    start_up()
+    #diagnostic_check(Btn1, TempPin, HumPin, barometer_sensor, camera)
+    
+    # Mode selection call
+    selected_mode = Mode.mode_select(Btn1)
+    
+    mode_functions = {
+      'drone' : Mode.drone_mode(),
+      'walk' : Mode.walk_mode()
+    }
+    
+    mode_function = mode_functions.get(selected_mode)
+    if mode_function:
+      mode_function()
+    else:
+      print("Mode not selected")
     
     """Set Sensor Pack Mode"""
     '''

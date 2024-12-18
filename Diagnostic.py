@@ -13,7 +13,7 @@ from humiture import *
 import LED
 
 # Establishing Pins
-BtnPin = 12
+Btn1 = 12
 TempPin = 7
 HumPin = 24
 
@@ -30,9 +30,11 @@ STATE_DATA_PULL_DOWN = 5
 ds18b20 = ''
 sensor_prefix = '28-'
 
+""" Add the logic for the Btn2 when acquired """
+
 
 # Accept ALL GPIO pins as parameters
-def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor, camera):
+def diagnostic_check(Btn1, TempPin, HumPin, barometer_sensor, camera):
     # Color Indicator
     LED.pulse('blue')
     
@@ -40,7 +42,7 @@ def diagnostic_check(BtnPin, TempPin, HumPin, barometer_sensor, camera):
     
     try:
         # Diagnosing Button
-        if GPIO.input(BtnPin) == 0:
+        if GPIO.input(Btn1) == 0:
             print("Diagnostic failed: Button not responding (no power).")
             return False
         else:

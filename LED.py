@@ -22,19 +22,22 @@ BPin = 13
 
 # Color Combinations
 colors = {
-	'red' : [LED.RPin, 0, 0], # Red
-	'green' : [0, LED.GPin, 0], # Green
-	'blue' : [0, 0, LED.BPin], # Blue
-	'white' : [LED.RPin, LED.GPin, LED.BPin], # White
-	'yellow' : [LED.RPin, LED.GPin, 0] # Yellow
+	'red' : [RPin, 0, 0], # Red
+	'green' : [0, GPin, 0], # Green
+	'blue' : [0, 0, BPin], # Blue
+	'white' : [RPin, GPin, BPin], # White
+	'yellow' : [RPin, GPin, 0] # Yellow
 }
 
 from threading import Thread, Event
 
 _stop_event = Event()
+thread = None
+pwm_instances = []
 
 # Pulsing function for any color
 def pulse(color_name):
+	global thread, pwm_instances
 	_stop_event.set() # Stops ongoing threads
 	_stop_event.clear() # Resets the stop event
 	
@@ -43,9 +46,9 @@ def pulse(color_name):
 	pwm_instances = []
 	for pin in pins:
 		if pin != 0:
-			GPI0.setup(pin, GPIO.OUT) # Not sure if this is needed
+			GPIO.setup(pin, GPIO.OUT) # Not sure if this is needed
 			pwm = GPIO.PWM(pin, 1000)
-			pwm = start(0)
+			pwm.start(0)
 			pwm_instances.append(pwm)
 	
 	# Pulsing color
@@ -67,18 +70,36 @@ def pulse(color_name):
 	thread.start()
 	
 def solid(color_name):
+	global pwm_instances
 	_stop_event.set()
+	time.sleep(0.1)
+	
+	for pwm in pwm_instances:
+		pwm.stop()
+	pwm_instances = []
 	
 	pins = colors[color_name]
 	
-	for i, pin in enumerate(pins):
-		if pin != 0:
-			GPIO.output(pin, GPIO.LOW)
-		else:
-			GPIO.output(pin,GPIO.HIGH)
+	GPIO.output(RPin, GPIO.HIGH)
+	GPIO.output(GPin, GPIO.HIGH)
+	GPIO.output(BPin, GPIO.HIGH)	
+	
+	if pins[0] != 0:
+		GPIO.output(pins, GPIO.LOW)
+	if pins[1] != 0:
+		GPIO.output(pins, GPIO.LOW)
+	if pins[2] != 0:
+		GPIO.output(pins, GPIO.LOW)
 	
 def stop():
+	global pwm_instances
 	_stop_event.set()
+	time.sleep(0.1)
+	
+	for pwm in pwm_instances:
+		pwm.stop()
+	pwm_instances = []
+	
 	GPIO.output(RPin, GPIO.HIGH)
 	GPIO.output(GPin, GPIO.HIGH)
 	GPIO.output(BPin, GPIO.HIGH)
