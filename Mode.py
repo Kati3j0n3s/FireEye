@@ -91,16 +91,14 @@ def walk_btn(Btn):
 	
 def walk_mode(Btn, conn, barometer_sensor, camera):
 	print("WALK MODE")
-	""" Light Indications """
-	LED.stop()
-	LED.solid('green')
 	
-	walk_btn(Btn)
-	
-	if walk_btn(Btn):
-		print("Collecting Data.")
-		Database.collect_walk_data(conn, barometer_sensor, camera)
-	else:
-		print("Exit Walk Mode")
-		return
+	while True:
+		LED.stop()
+		LED.solid('green')
+		if walk_btn(Btn):
+			print("Collecting Data.")
+			Database.collect_walk_data(conn, barometer_sensor, camera)
+		else:
+			print("Exit Walk Mode")
+			return
 	

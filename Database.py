@@ -116,6 +116,7 @@ def complete_flight(conn, FlightID, end_time):
     start_time = datetime.fromisoformat(result[0])
     
     duration = (end_time - start_time).total_seconds()
+    print("duration added.")
     cursor.execute(query, (end_time, duration, FlightID))
     conn.commit()
     
@@ -129,8 +130,11 @@ def collect_flight_data(conn, barometer_sensor, camera, interval = 20, i = 0): #
         os.makedirs(base_image_directory)
     
     flight_name = f"Flight {str(conn.execute('SELECT COUNT(*) FROM Flights').fetchone()[0] + 1).zfill(3)}"
+    print("flight_name added.")
     date = datetime.now().date()
+    print("date added.")
     start_time = datetime.now()
+    print("start_time added.")
     
     # Create a directory for the flight's images
     flight_image_directory = os.path.join(base_image_directory, flight_name)
@@ -141,12 +145,19 @@ def collect_flight_data(conn, barometer_sensor, camera, interval = 20, i = 0): #
     
     # Data Collection
     timestamp = datetime.now()
+    print("timestamp added.")
     lat = 0.01
+    print("lat added.")
     log = 0.00
+    print("log added.")
     alt = read_alt(barometer_sensor)
+    print("alt added.")
     pre = read_pre(barometer_sensor)
+    print("pre added.")
     temp = read_temp(sensor_id)
+    print("temp added.")
     humidity = hum_main()
+    print("hum added.")
 
     # Generate the image path
     image_name = f"image_{i}_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
@@ -164,9 +175,11 @@ def collect_flight_data(conn, barometer_sensor, camera, interval = 20, i = 0): #
             
     # Calculate CBI and give Danger Class
     CBI = calculate_cbi(temp, humidity)
+    print("CBI added.")
         
     # Determine Danger Class
     DangerClass = determine_danger_class(CBI)
+    print("DangerClass added.")
         
         
     insert_flight_data(conn, flight_id, timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path)
@@ -189,12 +202,19 @@ def collect_walk_data(conn, barometer_sensor, camera):
     
     # Data Collection
     timestamp = datetime.now()
+    print("timestamp added.")
     lat = 0.01
+    print("lat added.")
     log = 0.00
+    print("log added.")
     alt = read_alt(barometer_sensor)
+    print("alt added.")
     pre = read_pre(barometer_sensor)
+    print("pre added.")
     temp = read_temp(sensor_id)
+    print("temo added.")
     humidity = hum_main()
+    print("hum added.")
 
     # Generate the image path
     image_name = f"walk_image_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
@@ -212,9 +232,11 @@ def collect_walk_data(conn, barometer_sensor, camera):
         
     # Calculate CBI and give Danger Class
     CBI = calculate_cbi(temp, humidity)
+    print("CBI added.")
         
     # Determine Danger Class
     DangerClass = determine_danger_class(CBI)
+    print("DangerClass added.")
     
     # Insert into Walk_Data Table
     cursor = conn.cursor()

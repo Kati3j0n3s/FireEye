@@ -51,8 +51,6 @@ def setup():
   GPIO.setup(BPin, GPIO.OUT)
   
 
-
-
 if __name__ == "__main__":
   try:
     setup()
