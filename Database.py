@@ -63,12 +63,13 @@ def create_tables(conn):
         humidity REAL,                                          -- Humidity
         CBI REAL,                                               -- CBI Calculation
         DangerClass TEXT,                                       -- Fire Danger Class Indication
-        image_path TEXT,                                        -- Path to image
+        image_path TEXT                                         -- Path to image
     );
     """
     
     cursor.execute(create_flights_query)
     cursor.execute(create_flight_data_query)
+    cursor.execute(create_walk_data_query)
     conn.commit()
 
 # Insert flight data into Fights table
@@ -218,10 +219,10 @@ def collect_walk_data(conn, barometer_sensor, camera):
     # Insert into Walk_Data Table
     cursor = conn.cursor()
     query = """
-    INSERT INTO Walk_Data (timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, imagepath)
+    INSERT INTO Walk_Data (timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
-    cursor.execute(query, (timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, imagepath))
+    cursor.execute(query, (timestamp, lat, log, alt, pre, temp, humidity, CBI, DangerClass, image_path))
     conn.commit()
     
     print("Walking Mode data collected and inserted successfully")
