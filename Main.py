@@ -22,7 +22,7 @@ GPIO.setmode(GPIO.BCM)
 
 # Configuring Pins
 Btn1 = 18
-# Btn2 = 25
+Btn2 = 25
 TempPin = 7
 HumPin = 23
 RPin = 5
@@ -44,6 +44,7 @@ def setup():
   # GPIO Setups
   GPIO.setmode(GPIO.BCM)
   GPIO.setup(Btn1, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+  GPIO.setup(Btn2, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(TempPin, GPIO.IN)
   GPIO.setup(HumPin, GPIO.IN)
   GPIO.setup(RPin, GPIO.OUT)
@@ -54,7 +55,7 @@ def setup():
 if __name__ == "__main__":
   try:
     setup()
-    #diagnostic_check(Btn1, TempPin, HumPin, barometer_sensor, camera)
+    #diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera)
     
     # Database Setup
     conn = connect_db()
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     
     while True:
       # Mode selection call
-      selected_mode = Mode.mode_select(Btn1)
+      selected_mode = Mode.mode_select(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera)
     
       mode_functions = {
         'drone' : lambda: Mode.drone_mode(conn, barometer_sensor, camera),

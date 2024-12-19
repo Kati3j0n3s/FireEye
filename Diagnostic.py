@@ -14,6 +14,7 @@ import LED
 
 # Establishing Pins
 Btn1 = 12
+Btn2 = 25
 TempPin = 7
 HumPin = 24
 
@@ -30,19 +31,24 @@ STATE_DATA_PULL_DOWN = 5
 ds18b20 = ''
 sensor_prefix = '28-'
 
-""" Add the logic for the Btn2 when acquired """
-
 
 # Accept ALL GPIO pins as parameters
-def diagnostic_check(Btn1, TempPin, HumPin, barometer_sensor, camera):
+def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
     # Color Indicator
     LED.pulse('blue')
     
     print("initializing diagnostics...")
     
     try:
-        # Diagnosing Button
+        # Diagnosing Button 1
         if GPIO.input(Btn1) == 0:
+            print("Diagnostic failed: Button not responding (no power).")
+            return False
+        else:
+            print("Button is powered and responsive")
+            
+        # Diagnosing Button 2
+        if GPIO.input(Btn2) == 0:
             print("Diagnostic failed: Button not responding (no power).")
             return False
         else:
@@ -93,9 +99,6 @@ def diagnostic_check(Btn1, TempPin, HumPin, barometer_sensor, camera):
                 print("Diagnostic failed: Camera could not capture an image.")
         except Exception as e:
             print(f"Diagnostic failed: Camera error. Error: {e}")
-            
-        
-        
 
     except Exception as e:
         LED.solid('red')

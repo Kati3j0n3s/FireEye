@@ -3,34 +3,52 @@ import time
 import LED
 import ReadData
 import Database
+import Diagnostic
 from datetime import datetime
 
-def mode_select(Btn):
+def mode_select(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
 	press_start = None
 	mode_selected = False
-
-	# Waiting for button press
-	while GPIO.input(Btn) == GPIO.HIGH:
-		LED.solid('white')
-		pass # Keep going till pressed
-		
-	# Measuring time of button press
-	press_start = time.time()
 	
-	# Continuously check while button is pressed
-	while GPIO.input(Btn) == GPIO.LOW:
-		press_duration = time.time() - press_start
-		
-		if press_duration >= 3 and not mode_selected:
-			print("Long hold detected: Drone mode")
+	while True:
+		# Checking if Btn1 - Mode Selection Button is pressed
+		if GPIO.input(Btn1) == GPIO.LOW:
+			press_start = time.time()
+			while GPIO.input(Btn1) == GPIO.LOW:
+				press_duration = time.time() - press_start
+				
+				if press_duration >= 3 and not mode_selected:
+					print("Long hold detected: Drone Mode")
+					LED.stop()
+					mode_selected = True
+					return 'drone'
+					
+			if not mode_selected:
+				print("Short press detected: Walk Mode")
+				LED.stop()
+				return 'walk'
+				
+		# Checking if Btn2 - Diagnostic or Reboot is pressed
+		if GPIO.input(Btn2) == GPIO.LOW:
 			LED.stop()
-			mode_selected = True
-			return 'drone'
-	
-	if not mode_selected:
-		print("Short press detected: Walk mode")
-		LED.stop()
-		return 'walk'
+			print("Second button press")
+			press_start = time.time()
+			while GPIO.input(Btn2) == GPIO.LOW:
+				pass
+				
+			press_duration = time.time() - press_start
+				
+			if press_duration >= 3:
+				print("Long hold detected: Reboot")
+				LED.solid('red')
+				# Function to reboot
+			else:
+				print("Short press detected: Diagnostics")
+				Diagnostic.diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera)
+				LED.stop()
+				
+		LED.solid('white')
+		time.sleep(0.1)
 		
 def drone_mode(conn, barometer_sensor, camera):
 	print("DRONE MODE")
