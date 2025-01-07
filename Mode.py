@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import os
 import LED
 import ReadData
 import Database
@@ -42,6 +43,7 @@ def mode_select(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
 				print("Long hold detected: Reboot")
 				LED.solid('red')
 				# Function to reboot
+				os.system('sudo reboot')
 			else:
 				print("Short press detected: Diagnostics")
 				Diagnostic.diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera)

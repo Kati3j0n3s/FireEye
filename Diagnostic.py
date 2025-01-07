@@ -39,24 +39,28 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
     
     print("initializing diagnostics...")
     
+    # tracking if any error occurs
+    diagnostic_failed = False
+    
     try:
         # Diagnosing Button 1
         if GPIO.input(Btn1) == 0:
             print("Diagnostic failed: Button not responding (no power).")
-            return False
+            diagnostic_failed = True
         else:
-            print("Button is powered and responsive")
+            print("Button 1 is powered and responsive")
             
         # Diagnosing Button 2
         if GPIO.input(Btn2) == 0:
             print("Diagnostic failed: Button not responding (no power).")
-            return False
+            diagnostic_failed = True
         else:
-            print("Button is powered and responsive")
+            print("Button 2 is powered and responsive")
             
         # Diagnosing Temperature Sensor
         if GPIO.input(TempPin) == 0:
             print("Diagnostic failed: Temp Sensor not powered.")
+            diagnostic_failed = True
         else:
             try:
                 ds18b20 = check_ds18b20_sensor()
@@ -65,13 +69,16 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
                     print(f"Temperature Sensor (DS18b20): Read successful, Current Temperature: {temperature}\u00b0F")
                 else:
                     print(f"Diagnostic failed: DS18b20 sensor unable to read data.")
+                    diagnostic_failed = True
                 
             except Exception as e:
                 print(f"Diagnostic failed: Temperature Sensor (DS18b20) error. Error: {e}")
+                diagnostic_failed = True
                 
         # Diagnosing Humidity Sensor
         if GPIO.input(HumPin) == 0:
             print("Diagnostic failed: Humidity Sensor not powered.")
+            diagnostic_failed = True
         else:
             try:
                 humidity = hum_main()
@@ -79,8 +86,10 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
                     print(f"Humidity Sensor: Read successful, Current Humidity = {humidity}%.")
                 else:
                     print("Diagnostic failed: Humidity sensor unable to read data.")
+                    diagnostic_failed = True
             except Exception as e:
                 print(f"Diagnostic failed: Humidity Sensor unable to read data. Error {e}")
+                diagnostic_failed = True
                 
         # Diagnosing Barometer Sensor
         try:
@@ -90,6 +99,7 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
             print(f"Barometer Sensor: Powered and producing data, Altitude = {altitude} meters.")
         except Exception as e:
             print(f"Diagnostic failed: Barometer Sensor unable to read data. Error {e}")
+            diagnostic_failed = True
             
         # Diagnosing Camera
         try:
@@ -97,17 +107,24 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
                 print("Camera diagnostic: Success! Camera is functional and can take pictures.")
             else:
                 print("Diagnostic failed: Camera could not capture an image.")
+                diagnostic_failed = True
         except Exception as e:
             print(f"Diagnostic failed: Camera error. Error: {e}")
+            diagnostic_failed = True
 
     except Exception as e:
         LED.solid('red')
         print(f"Diagnostic check failed: {e}")
-        return False
-
-    print("finished diagnostic")
-    LED.stop()
-    return True
+        diagnostic_failed = True
+        
+    # After Diagnostics
+    if diagnostic_failed:
+        # Keep red till button press
+        LED.solid('red')
+    else:
+        print("finished diagnostic")
+        LED.stop()
+        return True
     
 def check_ds18b20_sensor():
     for i in os.listdir('/sys/bus/w1/devices'):

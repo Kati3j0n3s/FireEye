@@ -55,7 +55,8 @@ def setup():
 if __name__ == "__main__":
   try:
     setup()
-    #diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera)
+    LED.stop()
+    diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera)
     
     # Database Setup
     conn = connect_db()
