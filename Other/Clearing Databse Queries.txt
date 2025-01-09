@@ -1,5 +1,0 @@
-To delete data
-DELETE FROM Flight_Data;
-
-To reset the Auto-Increment counter
-DELETE FROM sqlite_sequence WHERE name='Flight_Data';
