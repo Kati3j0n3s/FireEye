@@ -33,31 +33,33 @@ sensor_prefix = '28-'
 
 
 # Accept ALL GPIO pins as parameters
-def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
-    # Color Indicator
-    LED.pulse('blue')
-    
-    print("initializing diagnostics...")
-    
-    # tracking if any error occurs
-    diagnostic_failed = False
-    
-    try:
+def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera, max_retries = 3, timeout = 15):
+    def run_check(start_time):
+        print("initializing diagnostics...")
+        # tracking if any error occurs
+        diagnostic_failed = False
+        
         # Diagnosing Button 1
+        if time.time() - start_time > timeout:
+            print("Diagnostic timedout during Button 1 check.")
         if GPIO.input(Btn1) == 0:
-            print("Diagnostic failed: Button not responding (no power).")
+            print("Diagnostic failed: Button 1 not responding (no power).")
             diagnostic_failed = True
         else:
             print("Button 1 is powered and responsive")
             
         # Diagnosing Button 2
+        if time.time() - start_time > timeout:
+            print("Diagnostic timedout during Button 2 check.")
         if GPIO.input(Btn2) == 0:
-            print("Diagnostic failed: Button not responding (no power).")
+            print("Diagnostic failed: Button 2 not responding (no power).")
             diagnostic_failed = True
         else:
             print("Button 2 is powered and responsive")
             
         # Diagnosing Temperature Sensor
+        if time.time() - start_time > timeout:
+            print("Diagnostic timedout during Temperature Sensor check.")
         if GPIO.input(TempPin) == 0:
             print("Diagnostic failed: Temp Sensor not powered.")
             diagnostic_failed = True
@@ -76,6 +78,8 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
                 diagnostic_failed = True
                 
         # Diagnosing Humidity Sensor
+        if time.time() - start_time > timeout:
+            print("Diagnostic timedout during Humidity Sensor check.")
         if GPIO.input(HumPin) == 0:
             print("Diagnostic failed: Humidity Sensor not powered.")
             diagnostic_failed = True
@@ -92,6 +96,8 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
                 diagnostic_failed = True
                 
         # Diagnosing Barometer Sensor
+        if time.time() - start_time > timeout:
+            print("Diagnostic timedout during Barometer Sensor check.")
         try:
             pressure = read_pre(barometer_sensor)
             altitude = read_alt(barometer_sensor)
@@ -102,6 +108,8 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
             diagnostic_failed = True
             
         # Diagnosing Camera
+        if time.time() - start_time > timeout:
+            print("Diagnostic timedout during Camera check.")
         try:
             if test_image(camera):
                 print("Camera diagnostic: Success! Camera is functional and can take pictures.")
@@ -111,20 +119,25 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
         except Exception as e:
             print(f"Diagnostic failed: Camera error. Error: {e}")
             diagnostic_failed = True
-
-    except Exception as e:
-        LED.solid('red')
-        print(f"Diagnostic check failed: {e}")
-        diagnostic_failed = True
-        
-    # After Diagnostics
-    if diagnostic_failed:
-        # Keep red till button press
-        LED.solid('red')
-    else:
-        print("finished diagnostic")
-        LED.stop()
-        return True
+            
+        return not diagnostic_failed
+            
+    LED.pulse('blue')
+    
+    retries = 0
+    while retries < max_retries:
+        start_time = time.time()
+        if run_check(start_time):
+            print("Diagnostic check passed.")
+            LED.stop()
+            return True
+        else:
+            print(f"Diagnostic check failed or timed out after {timeout} seconds. Retrying...")
+        retries += 1
+    
+    LED.solid('red')
+    print("Diagnostic check failed after maximum retries.")
+    return False
     
 def check_ds18b20_sensor():
     for i in os.listdir('/sys/bus/w1/devices'):

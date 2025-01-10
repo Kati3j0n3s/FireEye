@@ -43,6 +43,7 @@ COLLECTING_DATA_ALTITUDE_THRESHOLD = 4
 def setup():
   # GPIO Setups
   GPIO.setmode(GPIO.BCM)
+  GPIO.setwarnings(False)
   GPIO.setup(Btn1, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(Btn2, GPIO.IN, pull_up_down = GPIO.PUD_UP)
   GPIO.setup(TempPin, GPIO.IN)
