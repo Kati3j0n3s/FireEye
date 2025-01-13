@@ -4,6 +4,7 @@ import PCF8591 as ADC   # Not needed yet, but I think I do....
 import smbus
 import time
 import sqlite3
+import os
 
 # Referencing the other py files
 from Diagnostic import *
@@ -54,6 +55,7 @@ def setup():
   
 
 if __name__ == "__main__":
+  
   try:
     setup()
     LED.stop()

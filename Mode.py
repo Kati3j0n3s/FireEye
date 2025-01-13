@@ -32,7 +32,6 @@ def mode_select(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
 				
 		# Checking if Btn2 - Diagnostic or Reboot is pressed
 		if GPIO.input(Btn2) == GPIO.LOW:
-			#LED.stop()
 			print("Second button press")
 			press_start = time.time()
 			while GPIO.input(Btn2) == GPIO.LOW:
@@ -110,10 +109,10 @@ def walk_btn(Btn):
 		
 	press_duration = time.time() - press_start
 	
-	if 0 < press_duration < 3:
+	if 0 < press_duration < 1:
 		print("short press, collecting data.")
 		return 'short'
-	elif press_duration > 3:
+	elif press_duration > 1:
 		print("long press, returning to mode selection.")
 		return 'long'
 

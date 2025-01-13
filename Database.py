@@ -1,5 +1,6 @@
 import sqlite3
 import LED
+import os
 
 from Diagnostic import *
 from ReadData import *
@@ -10,9 +11,12 @@ from picamzero import *
 
 sensor_id = check_ds18b20_sensor()
 
+DATABASE_PATH = '/home/username/FireEye GitHub/FireEye/fireeye_data.db'
+
 # This establishes a creation or connection to the FireEye Database
-def connect_db(db_name='fireeye_data.db'):
-    conn = sqlite3.connect(db_name)
+def connect_db():
+    conn = sqlite3.connect(DATABASE_PATH)
+    conn.execute('PRAGMA journal_mode=WAL;')
     return conn
 
 # This creates a table if it doesn't exist
@@ -203,7 +207,7 @@ def collect_walk_data(conn, barometer_sensor, camera):
     # Data Collection
     timestamp = datetime.now()
     print("timestamp added.")
-    lat = 0.01
+    lat = 0.00
     print("lat added.")
     log = 0.00
     print("log added.")
