@@ -122,6 +122,7 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera, max_
             
         return not diagnostic_failed
             
+    LED.stop()
     LED.pulse('blue')
     
     retries = 0

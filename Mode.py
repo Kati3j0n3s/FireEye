@@ -39,7 +39,7 @@ def mode_select(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):
 				
 			press_duration = time.time() - press_start
 				
-			if press_duration >= 3:
+			if press_duration >= 1:
 				print("Long hold detected: Reboot")
 				LED.solid('red')
 				# Function to reboot
