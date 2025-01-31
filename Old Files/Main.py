@@ -1,22 +1,22 @@
 # Importing Libraries
 import RPi.GPIO as GPIO
-import PCF8591 as ADC   # Not needed yet, but I think I do....
+import OldFiles.PCF8591 as ADC   # Not needed yet, but I think I do....
 import smbus
 import time
 import sqlite3
 import os
 
 # Referencing the other py files
-from Diagnostic import *
-from ReadData import *
+from OldFiles.Diagnostic import *
+from OldFiles.ReadData import *
 from Adafruit_BMP import BMP085
-from Database import *
+from OldFiles.Database import *
 from datetime import datetime
-from CameraData import *
+from OldFiles.CameraData import *
 from picamzero import *
-from humiture import *
+from OldFiles.humiture import *
 import LED
-import Mode
+import OldFiles.Mode as Mode
 
 # Configures GPIO to use Broadcom chip numbering scheme.
 GPIO.setmode(GPIO.BCM)

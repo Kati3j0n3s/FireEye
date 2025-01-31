@@ -14,7 +14,7 @@ This logic is placed in Main.py for now and will be moved here.
 
 
 # Referencing other py files
-from Diagnostic import *
+from OldFiles.Diagnostic import *
 
 # def start_up_sequence(BtnPin, TempPin, HumidityPin):
 #     print("Starging up...")

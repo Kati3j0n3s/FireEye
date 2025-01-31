@@ -3,9 +3,9 @@ import time
 import os
 import sys
 import LED
-import ReadData
-import Database
-import Diagnostic
+import OldFiles.ReadData as ReadData
+import OldFiles.Database as Database
+import OldFiles.Diagnostic as Diagnostic
 from datetime import datetime
 
 def mode_select(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera):

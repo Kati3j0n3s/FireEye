@@ -34,7 +34,7 @@ import RPi.GPIO as GPIO
 import time
 import os
 
-from Diagnostic import *
+from OldFiles.Diagnostic import *
 
 # GPIO.setmode(GPIO.BCM)
 # GPIO.setup(BtnPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)

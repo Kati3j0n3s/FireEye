@@ -1,4 +1,4 @@
-import PCF8591 as ADC
+import OldFiles.PCF8591 as ADC
 import RPi.GPIO as GPIO
 import time
 

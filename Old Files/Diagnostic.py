@@ -7,9 +7,9 @@ import RPi.GPIO as GPIO
 import os
 import time
 
-from ReadData import *
-from CameraData import *
-from humiture import *
+from OldFiles.ReadData import *
+from OldFiles.CameraData import *
+from OldFiles.humiture import *
 import LED
 
 # Establishing Pins

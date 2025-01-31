@@ -2,10 +2,10 @@ import sqlite3
 import LED
 import os
 
-from Diagnostic import *
-from ReadData import *
+from OldFiles.Diagnostic import *
+from OldFiles.ReadData import *
 from datetime import datetime
-from CameraData import *
+from OldFiles.CameraData import *
 from picamzero import *
 
 
