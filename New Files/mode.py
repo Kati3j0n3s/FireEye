@@ -7,9 +7,9 @@ from datetime import datetime
 
 # Importing Modules
 import LED
-import collect_data
-import database
-import diagnostic
+from collect_data import CollectData
+from database import FireEyeDatabase
+from diagnostic import Diagnostic
 
 class ModeSelection:
     def __init__(self, conn, barometer_sensor, camera, D_BTN, M_BTN, TEMP_PIN, HUM_PIN):
@@ -21,20 +21,30 @@ class ModeSelection:
         self.TEMP_PIN = TEMP_PIN
         self.HUM_PIN = HUM_PIN
 
+        # Creating instance of collect_data, camera_control
+        self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, sensor_id=self.sensor_id)
+        self.diagnostic = Diagnostic(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
+        self.database = FireEyeDatabase(self)
+
+    """
+    Mode Select & Diagnostic/Reboot Function
+    - D_BTN indidates the button for diagnostics/reboot
+    - M_BTN indicates the button for mode selection (Drone/Walk)
+    """
     def mode_select(self):
         press_start = None
         mode_selected = False
 
         while True:
-            if GPIO.input(self.D_BTN) == GPIO.LOW:
+            if GPIO.input(self.M_BTN) == GPIO.LOW:
                 press_start = time.time()
-                while GPIO.input(self.D_BTN) == GPIO.LOW:
+                while GPIO.input(self.M_BTN) == GPIO.LOW:
                     press_duration = time.time() - press_start
 
                     if press_duration >= 3 and not mode_selected:
                         print("Long hold detected: Drone Mode")
                         LED.stop()
-                        mode_select = True
+                        mode_selected = True
                         return 'drone'
                     
                 if not mode_selected:
@@ -42,10 +52,10 @@ class ModeSelection:
                     LED.stop()
                     return 'walk'
                 
-            if GPIO.input(self.M_BTN) == GPIO.LOW:
+            if GPIO.input(self.D_BTN) == GPIO.LOW:
                 print("Second button press")
                 press_start = time.time()
-                while GPIO.input(self.M_BTN) == GPIO.LOW:
+                while GPIO.input(self.D_BTN) == GPIO.LOW:
                     pass
 
                 press_duration = time.time() - press_start
@@ -57,7 +67,7 @@ class ModeSelection:
                     sys.exit() # REPLACE WITH REBOOT WHEN FINALIZED
                 else:
                     print("Short press detected: Diagnostics initialized")
-                    diagnostic.diagnostic_check(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
+                    self.diagnostic.diagnostic_check(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
                     LED.stop()
             
             LED.solid('white')
@@ -84,11 +94,11 @@ class ModeSelection:
         LED.pulse('green')
 
         DATA_ALTITUDE_THRESHOLD = 10
-        starting_alt = collect_data.read_alt(self.baromter_sensor)
+        starting_alt = self.collect_data.read_alt(self.baromter_sensor)
 
         while True:
             time.sleep(2)
-            current_alt = collect_data.read_alt(self.baromter_sensor)
+            current_alt = self.collect_data.read_alt(self.baromter_sensor)
             altitude_diff = abs(current_alt - starting_alt)
 
             print(f"Current Altitude: {current_alt} ft. | Difference: {round(altitude_diff, 3)} ft.")
@@ -97,18 +107,20 @@ class ModeSelection:
                 print(f"Altitude threshold reached: {altitude_diff} ft. Starting data collection.")
                 break
 
-            flight_start_time = datetime.now()
-            flight_id = database.collect_flight_data(self.conn, self.barometer_sensor, self.camera, interval=20, i=0)
+            flight_id = self.database.collect_flight_data(self.conn, self.barometer_sensor, self.camera, interval=20, i=0)
 
             for i in range(1, 3):
-                database.collect_flight_data(self.conn, self.barometer_sensor, self.camera, interval=20, i=0)
+                self.database.collect_flight_data(self.conn, self.barometer_sensor, self.camera, interval=20, i=0)
 
-            flight_end_time = datetime.now()
-            database.complete_flight(self.conn, flight_id, flight_end_time)
+            self.database.complete_flight(self.conn, flight_id)
 
             LED.stop()
             print("Flight data collection complete!")
 
+    """
+    Walk Mode collects data at each short press, after data collection 
+    completion, until the M_BTN is long pressed.
+    """
     def walk_btn(self):
         while GPIO.input(self.M_BTN) == GPIO.HIGH:
             pass
@@ -119,7 +131,7 @@ class ModeSelection:
         
         press_duration = time.time() - press_start
 
-        if 0 < press_duration < 0.5: # Changed the timing to be shorter
+        if 0 < press_duration < 0.5:
             print("short press, collecting data.")
             return 'short'
         elif press_duration > 1:
@@ -128,6 +140,9 @@ class ModeSelection:
         
         return None
     
+    """
+    When in Walk Mode, it waits for a short press of the M_BTN to collect data.
+    """
     def walk_mode(self):
         print("WALK MODE")
 
@@ -138,10 +153,20 @@ class ModeSelection:
             press_type = self.walk_btn()
             if press_type == 'short':
                 print("Collecting Data.")
-                database.collect_walk_data(self.conn, self.baromter_sensor, self.camera)
+                self.database.collect_walk_data(self.conn, self.baromter_sensor, self.camera)
             elif press_type == 'long':
                 print("Exit Walk Mode")
                 LED.stop()
                 return
             else:
                 print("invalid")
+
+"""
+Maybe an addition feature is that when it's in either mode idle, it would have the capability to quickly
+run run_diagnostic() if the D_BTN is pressed. Then once its finsihed, and it was successful, then return 
+to the mode selected.
+
+ALSO.....
+Need to add something so if during collection, no other button can be pressed UNLESS it's the long press 
+of D_BTN to reboot the system, just in case it hangs up during data collection.
+"""

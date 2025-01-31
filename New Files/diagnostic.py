@@ -5,9 +5,9 @@ import os
 
 # Importing Modules
 import error_handler
-import collect_data
-import camera_control
 import LED
+from camera_control import CameraControl
+from collect_data import CollectData
 
 # Constants
 SENSOR_PREFIX = '28-' # DS18B20 Temperature Sensor Prefix
@@ -24,6 +24,9 @@ class Diagnostic:
          self.max_retries = max_retries
          self.timeout = timeout
 
+         # Creating Instances
+         self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, sensor_id=self.sensor_id)
+         self.camera_control = CameraControl(self)
 
     # Checks if Button(s) are responding
     def check_button(self, button, name):
@@ -54,7 +57,7 @@ class Diagnostic:
                
                sensor_id = self.check_ds18b20_sensor()
                if sensor_id:
-                    temperature = collect_data.read_temp(sensor_id)
+                    temperature = self.collect_data.read_temp(sensor_id)
                     print(f"Temperature Sensor: Read successful, Current Temperature: {temperature}\u00b0F")
                     return True
                else:
@@ -75,7 +78,7 @@ class Diagnostic:
                     error_handler.log_error("Humidity Sensor not powered.", "check_humidity_sensor")
                     return False
                
-               humidity = collect_data.read_hum()
+               humidity = self.collect_data.read_hum()
                if humidity:
                     print(f"Humidity Sensor: Read successful, Current Humidity: {humidity}%")
                     return True
@@ -94,8 +97,8 @@ class Diagnostic:
                    error_handler.log_error(f"Diagnostic timed out during Barometer sensor check.", "check_barometer_sensor")
                    return False
                
-               pressure = collect_data.read_pre(self.barometer_sensor)
-               altitude = collect_data.read_alt(self.barometer_sensor)
+               pressure = self.collect_data.read_pre(self.barometer_sensor)
+               altitude = self.collect_data.read_alt(self.barometer_sensor)
                print(f"Barometer Sensor: Pressure = {pressure} Pa, Altitude = {altitude} meters.")
                return True
          
@@ -110,7 +113,7 @@ class Diagnostic:
                    error_handler.log_error(f"Diagnostic timed out during Camera check.", "check_camera")
                    return False
                
-               if camera_control.test_image(self.camera):
+               if self.camera_control.test_image(self.camera):
                     print("Camera Diagnostic: Success! Camera is functiona an can take pictures.")
                     return True
                else:
@@ -121,8 +124,11 @@ class Diagnostic:
               error_handler.log_error(str(e), "check_camera")
               return False
          
+
+         
    # Checks if Barometer Sensor is working
-    def check_ds18b20_sensor(self):
+    @staticmethod
+    def check_ds18b20_sensor():
          for device in os.listdir('/sys/bus/w1/devices'):
               if device.startswith(SENSOR_PREFIX):
                    return device      
@@ -144,7 +150,7 @@ class Diagnostic:
                    self.check_temperature_sensor() and
                    self.check_humidity_sensor() and
                    self.check_barometer_sensor() and
-                   self.camera()
+                   self.check_camera()
               )
 
               if all_checks_passed:

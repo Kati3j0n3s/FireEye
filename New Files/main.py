@@ -4,9 +4,9 @@ import time
 import smbus
 
 # Importing Modules
-import diagnostic
-import database
-import mode
+from diagnostic import Diagnostic
+from database import FireEyeDatabase
+from mode import ModeSelection
 import LED
 import error_handler
 
@@ -30,20 +30,26 @@ class FireEyeSystem:
         self.B_PIN = 13
 
         # Barometer Sensor Setup
-        self.bus = smbus.SMBus(1)
-        self.barometer_sensor = BMP085.BMP085(busnum=1)
+        self.bus = smbus.SMBus(1) # Initializes communication with I2C devices on bus 1.
+        self.barometer_sensor = BMP085.BMP085(busnum=1) # Initializes the BMP085 barometer sensor for temperature and pressure measurements.
 
         # Camera Setup
-        self.camera = Camera()
+        self.camera = Camera() 
 
         # Database Connection
         self.conn = None
 
+        # Creating instance of diagnostic, database, mode_selection
+        self.diagnostic = Diagnostic(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
+        self.database = FireEyeDatabase(self)
+
         # Mode Select Functions
         self.mode_functions = {
-            'drone': lambda: mode.drone_mode(self.conn, self.barometer_sensor, self.camera),
-            'walk': lambda: mode.walk_mode(self.D_BTN, self.conn, self.barometer_sensor, self.camera)
+            'drone': lambda: self.mode.drone_mode(self.conn, self.barometer_sensor, self.camera),
+            'walk': lambda: self.mode.walk_mode(self.D_BTN, self.conn, self.barometer_sensor, self.camera)
         }
+
+        
 
     """ Sets up GPIO and initializes database. """
     def setup(self):
@@ -57,20 +63,20 @@ class FireEyeSystem:
         GPIO.setup(self.B_PIN, GPIO.OUT)
 
         # Initializes Database
-        self.conn = database.connect_db()
-        database.create_tables(self.conn)
+        self.conn = self.database.connect_db()
+        self.database.create_tables(self.conn)
 
     """ Main loop for system operation. """
     def run(self):
         try:
             self.setup()
             LED.stop()
-            diagnostic.diagnostic_check(
+            self.diagnostic.run_diagnostic(
                 self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera
             )
 
             while True:
-                selected_mode = mode.mode_select(
+                selected_mode = self.mode.mode_select(
                     self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera
                 )
 

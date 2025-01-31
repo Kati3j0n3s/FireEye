@@ -2,15 +2,15 @@
 import sqlite3
 import time
 from picamzero import PicamZero
+from datetime import datetime
 
 
 # Importing Modules
 import LED
 import error_handler
 from diagnostic import check_ds18b20_sensor
-from collect_data import read_temp, read_alt, read_pre, read_hum
-from datetime import datetime
-from camera_control import take_picture
+from collect_data import CollectData
+from camera_control import CameraControl
 
 
 class FireEyeDatabase:
@@ -19,6 +19,10 @@ class FireEyeDatabase:
         self.sensor_id = check_ds18b20_sensor()
         self.conn = self.connect_db()
         self.create_tables()
+
+        # Creating instance of collect_data, camera_control
+        self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, sensor_id=self.sensor_id)
+        self.camera_control = CameraControl(self)
 
     def connect_db(self):
         """Establishes a connection to the FireEye Database."""
@@ -147,16 +151,16 @@ class FireEyeDatabase:
 
             timestamp = datetime.now()
             lat, log = 0.01, 0.00
-            alt = read_alt(barometer_sensor)
-            pre = read_pre(barometer_sensor)
-            temp = read_temp(self.sensor_id)
-            humidity = read_hum()
+            alt = self.collect_data.read_alt(barometer_sensor)
+            pre = self.collect_data.read_pre(barometer_sensor)
+            temp = self.collect_data.read_temp(self.sensor_id)
+            humidity = self.collect_data.read_hum()
             image_name = f"image_{i}_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
             image_path = f"/home/username/FireEye GitHub/FireEye/FireEye Images/{image_name}"
 
             # Capture an image
             try:
-                if take_picture(camera, image_path):
+                if self.camera_control.take_picture(camera, image_path):
                     print(f"Image saved: {image_path}")
                 else:
                     print("Failed to save image.")
@@ -186,16 +190,16 @@ class FireEyeDatabase:
 
             timestamp = datetime.now()
             lat, log = 0.00, 0.00
-            alt = read_alt(barometer_sensor)
-            pre = read_pre(barometer_sensor)
-            temp = read_temp(self.sensor_id)
-            humidity = read_hum()
+            alt = self.collect_data.read_alt(barometer_sensor)
+            pre = self.collect_data.read_pre(barometer_sensor)
+            temp = self.collect_data.read_temp(self.sensor_id)
+            humidity = self.collect_data.read_hum()
             image_name = f"walk_image_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
             image_path = f"/home/username/FireEye GitHub/FireEye/FireEye Images/{image_name}"
 
             # Capture an image
             try:
-                if take_picture(camera, image_path):
+                if self.camera_control.take_picture(camera, image_path):
                     print(f"Image saved: {image_path}")
                 else:
                     print("Failed to save image.")
@@ -218,7 +222,6 @@ class FireEyeDatabase:
         except Exception as e:
             print(f"Error collecting walk data: {e}")
             
-
     def close_db(self):
         """Closes the database connection."""
         if self.conn:
