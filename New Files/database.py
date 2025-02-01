@@ -1,7 +1,7 @@
 # Importing Libraries
 import sqlite3
 import time
-from picamzero import PicamZero
+from picamzero import *
 from datetime import datetime
 
 

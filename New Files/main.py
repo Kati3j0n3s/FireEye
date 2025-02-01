@@ -10,7 +10,8 @@ from mode import ModeSelection
 import LED
 import error_handler
 
-from Adafruit_BMP import BMP085
+#from Adafruit_BMP import BMP085
+import BMP085 #testing
 from picamzero import *
 from datetime import datetime
 
