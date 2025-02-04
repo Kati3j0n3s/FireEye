@@ -36,7 +36,7 @@ class FireEyeSystem:
 
         # Camera Setup
         #self.camera = Camera()
-        self.camera = CameraControl(self)
+        self.camera = CameraControl()
 
         # Database Connection
         self.conn = None

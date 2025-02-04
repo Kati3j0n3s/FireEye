@@ -14,8 +14,8 @@ from camera_control import CameraControl
 
 
 class FireEyeDatabase:
-    def __init__(self, db_path="/home/username/FireEye GitHub/FireEye/fireeye_data.db"):
-        self.db_path = db_path
+    def __init__(self):
+        self.db_path = "/home/username/FireEye/fireeye_data.db"
         self.sensor_id = Diagnostic.check_ds18b20_sensor()
         self.conn = self.connect_db()
         self.create_tables()
@@ -156,7 +156,7 @@ class FireEyeDatabase:
             temp = self.collect_data.read_temp(self.sensor_id)
             humidity = self.collect_data.read_hum()
             image_name = f"image_{i}_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
-            image_path = f"/home/username/FireEye GitHub/FireEye/FireEye Images/{image_name}"
+            image_path = f"/home/username/FireEye/FireEye Images/{image_name}"
 
             # Capture an image
             try:
@@ -195,7 +195,7 @@ class FireEyeDatabase:
             temp = self.collect_data.read_temp(self.sensor_id)
             humidity = self.collect_data.read_hum()
             image_name = f"walk_image_{timestamp.strftime('%Y%m%d_%H%M%S')}.jpg"
-            image_path = f"/home/username/FireEye GitHub/FireEye/FireEye Images/{image_name}"
+            image_path = f"/home/username/FireEye/FireEye Images/{image_name}"
 
             # Capture an image
             try:
