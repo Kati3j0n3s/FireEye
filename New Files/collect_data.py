@@ -1,14 +1,12 @@
 # Import Libraries
 import RPi.GPIO as GPIO
 import time
-import Adafruit_DHT
 import math
 
 # Import Modules
 import error_handler
 
 class CollectData:
-    DHT_SENSOR = Adafruit_DHT.DHT11
     HUM_PIN = 24
 
     def __init__(self, barometer_sensor, temperature_sensor_id):
