@@ -14,9 +14,10 @@ from camera_control import CameraControl
 
 
 class FireEyeDatabase:
-    def __init__(self):
+    def __init__(self, barometer_sensor):
         self.db_path = "/home/username/FireEye/fireeye_data.db"
         self.sensor_id = Diagnostic.check_ds18b20_sensor()
+        self.barometer_sensor = barometer_sensor
         self.conn = self.connect_db()
         self.create_tables()
 
