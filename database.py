@@ -8,7 +8,7 @@ from datetime import datetime
 # Importing Modules
 import LED
 import error_handler
-from diagnostic import check_ds18b20_sensor
+from diagnostic import Diagnostic
 from collect_data import CollectData
 from camera_control import CameraControl
 
@@ -16,7 +16,7 @@ from camera_control import CameraControl
 class FireEyeDatabase:
     def __init__(self, db_path="/home/username/FireEye GitHub/FireEye/fireeye_data.db"):
         self.db_path = db_path
-        self.sensor_id = check_ds18b20_sensor()
+        self.sensor_id = Diagnostic.check_ds18b20_sensor()
         self.conn = self.connect_db()
         self.create_tables()
 
