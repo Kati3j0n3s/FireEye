@@ -7,6 +7,7 @@ import smbus
 from diagnostic import Diagnostic
 from database import FireEyeDatabase
 from mode import ModeSelection
+from camera_control import CameraControl
 import LED
 import error_handler
 
@@ -34,7 +35,8 @@ class FireEyeSystem:
         self.barometer_sensor = BMP085.BMP085(busnum=1) # Initializes the BMP085 barometer sensor for temperature and pressure measurements.
 
         # Camera Setup
-        self.camera = Camera() 
+        #self.camera = Camera()
+        self.camera = CameraControl(self)
 
         # Database Connection
         self.conn = None
