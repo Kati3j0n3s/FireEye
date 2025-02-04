@@ -23,7 +23,7 @@ class FireEyeDatabase:
 
         # Creating instance of collect_data, camera_control
         self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, temperature_sensor_id=self.sensor_id)
-        self.camera_control = CameraControl(self)
+        self.camera_control = CameraControl()
 
     def connect_db(self):
         """Establishes a connection to the FireEye Database."""
