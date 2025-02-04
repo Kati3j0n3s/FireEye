@@ -26,7 +26,7 @@ class Diagnostic:
          self.sensor_id = self.check_ds18b20_sensor()
 
          # Creating Instances
-         self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, sensor_id=self.sensor_id)
+         self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, temperature_sensor_id=self.sensor_id)
          self.camera_control = CameraControl(self)
 
     # Checks if Button(s) are responding
