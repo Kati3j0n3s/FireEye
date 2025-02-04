@@ -23,6 +23,7 @@ class Diagnostic:
          self.camera = camera
          self.max_retries = max_retries
          self.timeout = timeout
+         self.sensor_id = self.check_ds18b20_sensor()
 
          # Creating Instances
          self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, sensor_id=self.sensor_id)
@@ -55,7 +56,7 @@ class Diagnostic:
                     error_handler.log_error("Temperature Sensor not powered.", "check_temperature_sensor")
                     return False
                
-               sensor_id = self.check_ds18b20_sensor()
+               
                if sensor_id:
                     temperature = self.collect_data.read_temp(sensor_id)
                     print(f"Temperature Sensor: Read successful, Current Temperature: {temperature}\u00b0F")
