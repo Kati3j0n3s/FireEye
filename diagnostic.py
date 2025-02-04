@@ -27,7 +27,7 @@ class Diagnostic:
 
          # Creating Instances
          self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, temperature_sensor_id=self.sensor_id)
-         self.camera_control = CameraControl(self)
+         self.camera_control = CameraControl()
 
     # Checks if Button(s) are responding
     def check_button(self, button, name):
