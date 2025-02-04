@@ -24,7 +24,7 @@ class ModeSelection:
         # Creating instance of collect_data, camera_control
         self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, sensor_id=self.sensor_id)
         self.diagnostic = Diagnostic(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
-        self.database = FireEyeDatabase(self)
+        #self.database = FireEyeDatabase(self)
 
     """
     Mode Select & Diagnostic/Reboot Function

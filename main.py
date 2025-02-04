@@ -43,7 +43,7 @@ class FireEyeSystem:
 
         # Creating instance of diagnostic, database, mode_selection
         self.diagnostic = Diagnostic(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
-        self.database = FireEyeDatabase(self)
+        self.database = FireEyeDatabase()
 
         # Mode Select Functions
         self.mode_functions = {
