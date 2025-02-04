@@ -22,7 +22,7 @@ class FireEyeDatabase:
         self.create_tables()
 
         # Creating instance of collect_data, camera_control
-        self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, sensor_id=self.sensor_id)
+        self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, temperature_sensor_id=self.sensor_id)
         self.camera_control = CameraControl(self)
 
     def connect_db(self):
