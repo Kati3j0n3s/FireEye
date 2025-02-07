@@ -13,7 +13,7 @@
 import RPi.GPIO as GPIO
 import time
 
-HumPin = 24
+HumPin = 23
 
 GPIO.setmode(GPIO.BCM)
 
@@ -27,6 +27,7 @@ STATE_DATA_PULL_DOWN = 5
 
 
 def read_dht11_dat():
+	print('test3')
 	GPIO.setup(HumPin, GPIO.OUT)
 	GPIO.output(HumPin, GPIO.HIGH)
 	time.sleep(0.05)
@@ -115,12 +116,14 @@ def read_dht11_dat():
 		#print ("Data not good, skip")
 		return False
 
+	print('test4')
 	return the_bytes[0], the_bytes[2]
 
 def hum_main():
 	while True:
 		result = read_dht11_dat()
 		if result:
+			print('test2')
 			humidity, temperature = result
 			#print(f"Humidty: {humidity}%")
 			return humidity

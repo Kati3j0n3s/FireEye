@@ -33,7 +33,7 @@ sensor_prefix = '28-'
 
 
 # Accept ALL GPIO pins as parameters
-def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera, max_retries = 3, timeout = 15):
+def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera, max_retries = 3, timeout = 30):
     def run_check(start_time):
         print("initializing diagnostics...")
         # tracking if any error occurs

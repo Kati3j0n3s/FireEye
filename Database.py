@@ -11,7 +11,7 @@ from picamzero import *
 
 sensor_id = check_ds18b20_sensor()
 
-DATABASE_PATH = '/home/username/FireEye GitHub/FireEye/fireeye_data.db'
+DATABASE_PATH = '/home/username/FireEye/fireeye_data.db'
 
 # This establishes a creation or connection to the FireEye Database
 def connect_db():
@@ -128,7 +128,7 @@ def complete_flight(conn, FlightID, end_time):
 # Basically, multiply the time.sleep value by range value and you get total collection time.
 def collect_flight_data(conn, barometer_sensor, camera, interval = 20, i = 0): # 20 Sec intervals
     # Creating directory for saved images
-    base_image_directory = "/home/username/FireEye GitHub/FireEye/FireEye Images"
+    base_image_directory = "/home/username/FireEye/FireEye Images"
     
     if not os.path.exists(base_image_directory):
         os.makedirs(base_image_directory)
@@ -199,7 +199,7 @@ def collect_walk_data(conn, barometer_sensor, camera):
     LED.stop()
     LED.pulse('yellow')
     # Creating directory for saved images
-    base_image_directory = "/home/username/FireEye GitHub/FireEye/FireEye Images"
+    base_image_directory = "/home/username/FireEye/FireEye Images"
     
     if not os.path.exists(base_image_directory):
         os.makedirs(base_image_directory)
