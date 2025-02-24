@@ -34,6 +34,9 @@ class FireEyeSystem:
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
+        # Database Instance
+        self.database = FireEyeDatabase(barometer_sensor=self.barometer_sensor)
+        
         # Setup Methods
         self.setup_sensors()
         self.setup_camera()
@@ -50,8 +53,7 @@ class FireEyeSystem:
             'walk': lambda: self.mode.walk_mode()
         }
 
-        # Database Instance
-        self.database = FireEyeDatabase(barometer_sensor=self.barometer_sensor)
+
 
     def setup_sensors(self):
         # Barometer Sensor Setup
