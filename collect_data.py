@@ -12,7 +12,6 @@ class CollectData:
     def __init__(self, barometer_sensor, temperature_sensor_id):
         self.barometer_sensor = barometer_sensor
         self.temperature_sensor_id = temperature_sensor_id
-        # GPIO.setmode(GPIO.BCM) - Why needed? Already established?
 
     """ Gets single temperature data value. """
     def read_temp(self):
@@ -29,8 +28,8 @@ class CollectData:
             else:
                 raise RuntimeError("Failed to read temperature data from DS18B20 sensor.")
         except Exception as e:
-            error_handler.log_error(f"Error reading temperature data: {e}", "read_temp")
-            raise
+            error_handler.log_error(str(e), "CollectData.read_temp")
+            raise e
 
 
     """ Gets single altitude data value. """    
@@ -40,7 +39,7 @@ class CollectData:
             altitude_feet = round(altitude_meters * 3.28084, 3)
             return altitude_feet
         except Exception as e:
-            error_handler.log_error(f"Error reading altitude data: {e}", "read_alt")
+            error_handler.log_error(str(e), "CollectData.read_alt")
             raise RuntimeError(f"Failed to read altitude data: {e}")
         
     """ Gets single pressure data value. """
@@ -48,7 +47,7 @@ class CollectData:
         try: 
             return self.barometer_sensor.read_pressure()
         except Exception as e:
-            error_handler.log_error(f"Error reading pressure data: {e}", "read_pre")
+            error_handler.log_error(str(e), "CollectData.read_pre")
             raise RuntimeError(f"Failed to read pressure data: {e}")
 
     """ Reads humidity from DHT11 sensor."""   
@@ -111,8 +110,10 @@ class CollectData:
             
             return the_bytes[0] # Humidity Value
         except Exception as e:
-            error_handler.log_error(f"Error reading humidity data: {e}", "read_hum")  # Log the error
-            return None
+            error_handler.log_error(str(e), "CollectData.read_hum")  # Log the error
+            raise RuntimeError("Failed to read humidity data.")
+        finally:
+            GPIO.cleanup(self.HUM_PIN)
     
     """Calculates the CBI (Custom Burn Index) based on temperature and humidity."""
     @staticmethod

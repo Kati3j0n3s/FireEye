@@ -5,7 +5,7 @@ import os
 
 # Importing Modules
 import error_handler
-import LED
+from LED import LEDController
 from camera_control import CameraControl
 from collect_data import CollectData
 
@@ -27,6 +27,7 @@ class Diagnostic:
 
          # Creating Instances
          self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, temperature_sensor_id=self.sensor_id)
+         self.led = LED.LEDController()
 
     # Checks if Button(s) are responding
     def check_button(self, button, name):
@@ -41,7 +42,7 @@ class Diagnostic:
                return True
          
          except Exception as e:
-              error_handler.log_error(str(e), "check_button")
+              error_handler.log_error(str(e), "Diagnostic.check_button")
               return False
          
 
@@ -55,9 +56,8 @@ class Diagnostic:
                     error_handler.log_error("Temperature Sensor not powered.", "check_temperature_sensor")
                     return False
                
-               
-               if sensor_id:
-                    temperature = self.collect_data.read_temp(sensor_id)
+               if self.sensor_id:
+                    temperature = self.collect_data.read_temp(self.sensor_id)
                     print(f"Temperature Sensor: Read successful, Current Temperature: {temperature}\u00b0F")
                     return True
                else:
@@ -65,7 +65,7 @@ class Diagnostic:
                     return False
 
          except Exception as e:
-              error_handler.log_error(str(e), "check_temperature_sensor")
+              error_handler.log_error(str(e), "Diagnostic.check_temperature_sensor")
               return False
 
     # Check if Humidity Sensor is working
@@ -87,7 +87,7 @@ class Diagnostic:
                     return False
 
          except Exception as e:
-              error_handler.log_error(str(e), "check_humidity_sensor")
+              error_handler.log_error(str(e), "Diagnostic.check_humidity_sensor")
               return False
          
    # Checks if Barometer Sensor is working
@@ -103,7 +103,7 @@ class Diagnostic:
                return True
          
          except Exception as e:
-              error_handler.log_error(str(e), "check_barometer_sensor")
+              error_handler.log_error(str(e), "Diagnostic.check_barometer_sensor")
               return False
 
    # Checks if Camera is working
@@ -121,7 +121,7 @@ class Diagnostic:
                     return False
 
          except Exception as e:
-              error_handler.log_error(str(e), "check_camera")
+              error_handler.log_error(str(e), "Diagnostic.check_camera")
               return False
          
 
@@ -136,8 +136,8 @@ class Diagnostic:
     
     # Runs the full diagnostic sequence
     def run_diagnostic(self):
-         LED.stop()
-         LED.pulse('blue')
+         self.led.stop()
+         self.led.pulse('blue')
 
          retries = 0
          while retries < self.max_retries:
@@ -155,13 +155,13 @@ class Diagnostic:
 
               if all_checks_passed:
                    print("Diagnostic check passed.")
-                   LED.stop()
+                   self.led.stop()
                    return True
               else:
                    print(f"Diagnostic check failed or timed out after {self.timeout} seconds. Retrying...")
                    retries += 1
 
-         LED.solid('red')
+         self.led.solid('red')
          print("Diagnostic check failed after maximum retries.")
          return False
          

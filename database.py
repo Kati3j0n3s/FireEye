@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 # Importing Modules
-import LED
+from LED import LEDController
 import error_handler
 from diagnostic import Diagnostic
 from collect_data import CollectData
@@ -24,6 +24,7 @@ class FireEyeDatabase:
         # Creating instance of collect_data, camera_control
         self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, temperature_sensor_id=self.sensor_id)
         self.camera_control = CameraControl()
+        self.led = LED.LEDController()
 
     def connect_db(self):
         """Establishes a connection to the FireEye Database."""
@@ -186,8 +187,8 @@ class FireEyeDatabase:
     def collect_walk_data(self, barometer_sensor, camera):
         """Collects and inserts walk mode data."""
         try:
-            LED.stop()
-            LED.pulse('yellow')
+            self.led.stop()
+            self.led.pulse('yellow')
 
             timestamp = datetime.now()
             lat, log = 0.00, 0.00
@@ -219,7 +220,7 @@ class FireEyeDatabase:
             self.conn.commit()
 
             print("Walking mode data inserted.")
-            LED.stop()
+            self.led.stop()
         except Exception as e:
             print(f"Error collecting walk data: {e}")
             

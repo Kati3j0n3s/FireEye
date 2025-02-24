@@ -1,86 +1,118 @@
-# Importing Libraries
-import RPi.GPIO as GPIO
+# Standard Libraries
 import time
-import smbus
+from datetime import datetime
 
-# Importing Modules
+# Thrid Party Libraries
+import RPi.GPIO as GPIO
+import smbus
+from picamzero import *
+
+# Internal Modules
 from diagnostic import Diagnostic
 from database import FireEyeDatabase
 from mode import ModeSelection
 from camera_control import CameraControl
-import LED
+from LED import LEDController
 import error_handler
 
+# Sensor Libraries
 import BMP085
-from picamzero import *
-from datetime import datetime
 
 class FireEyeSystem:
+    # Class Variables
+    # Pin Assignments
+    D_BTN = 18 #-> Btn1
+    M_BTN = 25 #-> Btn2
+    TEMP_PIN = 7
+    HUM_PIN = 23
+    R_PIN = 5
+    G_PIN = 6
+    B_PIN = 13
+
     def __init__(self):
         # GPIO Configuration
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
-        # Pin Assignments
-        self.D_BTN = 18 #-> Btn1
-        self.M_BTN = 25 #-> Btn2
-        self.TEMP_PIN = 7
-        self.HUM_PIN = 23
-        self.R_PIN = 5
-        self.G_PIN = 6
-        self.B_PIN = 13
+        # Setup Methods
+        self.setup_sensors()
+        self.setup_camera()
+        self.setup_database()
+        self.setup_diagnostic()
+        self.setup_modes()
+        self.setup_GPIO()
 
-        # Barometer Sensor Setup
-        self.bus = smbus.SMBus(1) # Initializes communication with I2C devices on bus 1.
-        self.barometer_sensor = BMP085.BMP085(busnum=1) # Initializes the BMP085 barometer sensor for temperature and pressure measurements.
+        self.led = LEDController()
 
-        # Camera Setup
-        #self.camera = Camera()
-        self.camera = CameraControl()
-
-        # Database Connection
-        self.conn = None
-
-        # Creating instance of diagnostic, database, mode_selection
-        self.diagnostic = Diagnostic(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
-        self.database = FireEyeDatabase(barometer_sensor=self.barometer_sensor)
-
-        # Mode Select Functions
+        # Mode Functions
         self.mode_functions = {
-            'drone': lambda: self.mode.drone_mode(self.conn, self.barometer_sensor, self.camera),
-            'walk': lambda: self.mode.walk_mode(self.D_BTN, self.conn, self.barometer_sensor, self.camera)
+            'drone': lambda: self.mode.drone_mode(),
+            'walk': lambda: self.mode.walk_mode()
         }
 
-        
+        # Database Instance
+        self.database = FireEyeDatabase(barometer_sensor=self.barometer_sensor)
+
+    def setup_sensors(self):
+        # Barometer Sensor Setup
+        try:
+            self.bus = smbus.SMBus(1) # Initializes communication with I2C devices on bus 1.
+            self.barometer_sensor = BMP085.BMP085(busnum=1) # Initializes the BMP085 barometer sensor for temperature and pressure measurements.
+        except Exception as e:
+            error_handler.log_error(str(e), "FireEyeSystem.setup_sensors")
+
+    def setup_camera(self):
+        # Camera Setup
+        try:
+            self.camera = CameraControl()
+        except Exception as e:
+            error_handler.log_error(str(e), "FireEyeSystem.setup_camera")
+
+    def setup_database(self):
+        # Database Connection
+        try:
+            self.conn = self.database.connect_db()
+            self.database.create_tables(self.conn)
+        except Exception as e:
+            error_handler.log_error(str(e), "FireEyeSystem.setup_database")
+
+    def setup_diagnostic(self):
+        # Diagnostic Setup
+        try:
+            self.diagnostic = Diagnostic(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
+        except Exception as e:
+            error_handler.log_error(str(e), "FireEyeSystem.setup_diagnostic")
+    
+    def setup_modes(self):
+        # Mode Selection
+        try:
+            self.mode = ModeSelection(self.conn, self.barometer_sensor, self.camera, self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN)
+        except Exception as e:
+            error_handler.log_error(str(e), "FireEyeSystem.setup_modes")
 
     """ Sets up GPIO and initializes database. """
-    def setup(self):
-        # Sets up GPIO
-        GPIO.setup(self.D_BTN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(self.M_BTN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(self.TEMP_PIN, GPIO.IN)
-        GPIO.setup(self.HUM_PIN, GPIO.IN)
-        GPIO.setup(self.R_PIN, GPIO.OUT)
-        GPIO.setup(self.G_PIN, GPIO.OUT)
-        GPIO.setup(self.B_PIN, GPIO.OUT)
-
-        # Initializes Database
-        self.conn = self.database.connect_db()
-        self.database.create_tables(self.conn)
+    def setup_GPIO(self):
+        try:
+            # Sets up GPIO
+            GPIO.setup(self.D_BTN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(self.M_BTN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(self.TEMP_PIN, GPIO.IN)
+            GPIO.setup(self.HUM_PIN, GPIO.IN)
+            GPIO.setup(self.R_PIN, GPIO.OUT)
+            GPIO.setup(self.G_PIN, GPIO.OUT)
+            GPIO.setup(self.B_PIN, GPIO.OUT)
+        except Exception as e:
+            error_handler.log_error(str(e), "FireEyeSystem.setup")
 
     """ Main loop for system operation. """
     def run(self):
         try:
-            self.setup()
-            LED.stop()
-            self.diagnostic.run_diagnostic(
-                self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera
-            )
+            self.led.stop()
+            self.led.solid('blue')
+            self.diagnostic.run_diagnostic()
 
             while True:
-                selected_mode = self.mode.mode_select(
-                    self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera
-                )
+                selected_mode = self.mode.mode_select()
 
                 if selected_mode in self.mode_functions:
                     self.mode_functions[selected_mode]()
