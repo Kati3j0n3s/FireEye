@@ -77,7 +77,7 @@ class FireEyeSystem:
         # Database Connection
         try:
             self.conn = self.database.connect_db()
-            self.database.create_tables(self.conn)
+            self.database.create_tables()
         except Exception as e:
             print("Error in setup_database:", e)
             error_handler.log_error(str(e), "FireEyeSystem.setup_database")

@@ -6,7 +6,11 @@ from picamzero import Camera
 import error_handler
 
 class CameraControl:
+    _instance = None
+
     def __init__(self, save_directory="/home/username/Pictures/test_images/test_image.jpg"):
+        if CameraControl._instance is None:
+            CameraControl._instance = Camera()
         self.camera = Camera()
         self.save_directory = save_directory
 
