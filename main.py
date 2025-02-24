@@ -34,11 +34,13 @@ class FireEyeSystem:
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
+        self.setup_sensors()
+
         # Database Instance
         self.database = FireEyeDatabase(barometer_sensor=self.barometer_sensor)
-        
+
         # Setup Methods
-        self.setup_sensors()
+        
         self.setup_camera()
         self.setup_database()
         self.setup_diagnostic()
