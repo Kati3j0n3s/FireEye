@@ -6,7 +6,7 @@ import sys
 from datetime import datetime
 
 # Importing Modules
-import LED
+from LED import LEDController
 from collect_data import CollectData
 from database import FireEyeDatabase
 from diagnostic import Diagnostic
@@ -43,13 +43,13 @@ class ModeSelection:
 
                     if press_duration >= 3 and not mode_selected:
                         print("Long hold detected: Drone Mode")
-                        LED.stop()
+                        self.led.stop()
                         mode_selected = True
                         return 'drone'
                     
                 if not mode_selected:
                     print("Short press detected: Walk Mode")
-                    LED.stop()
+                    self.led.stop()
                     return 'walk'
                 
             if GPIO.input(self.D_BTN) == GPIO.LOW:
@@ -62,15 +62,15 @@ class ModeSelection:
 
                 if press_duration >= 1:
                     print("Long hold detected: Reboot")
-                    LED.solid('red')
+                    self.led.solid('red')
                     GPIO.cleanup()
                     sys.exit() # REPLACE WITH REBOOT WHEN FINALIZED
                 else:
                     print("Short press detected: Diagnostics initialized")
                     self.diagnostic.diagnostic_check(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
-                    LED.stop()
+                    self.led.stop()
             
-            LED.solid('white')
+            self.led.solid('white')
             time.sleep(0.1)
 
     
@@ -90,8 +90,8 @@ class ModeSelection:
     
     def drone_mode(self):
         print("DRONE MODE")
-        LED.stop()
-        LED.pulse('green')
+        self.led.stop()
+        self.led.pulse('green')
 
         DATA_ALTITUDE_THRESHOLD = 10
         starting_alt = self.collect_data.read_alt(self.baromter_sensor)
@@ -114,7 +114,7 @@ class ModeSelection:
 
             self.database.complete_flight(self.conn, flight_id)
 
-            LED.stop()
+            self.led.stop()
             print("Flight data collection complete!")
 
     """
@@ -147,8 +147,8 @@ class ModeSelection:
         print("WALK MODE")
 
         while True:
-            LED.stop()
-            LED.solid('green')
+            self.led.stop()
+            self.led.solid('green')
 
             press_type = self.walk_btn()
             if press_type == 'short':
@@ -156,7 +156,7 @@ class ModeSelection:
                 self.database.collect_walk_data(self.conn, self.baromter_sensor, self.camera)
             elif press_type == 'long':
                 print("Exit Walk Mode")
-                LED.stop()
+                self.led.stop()
                 return
             else:
                 print("invalid")
