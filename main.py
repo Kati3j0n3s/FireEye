@@ -40,7 +40,6 @@ class FireEyeSystem:
         self.database = FireEyeDatabase(barometer_sensor=self.barometer_sensor)
 
         # Setup Methods
-        
         self.setup_camera()
         self.setup_database()
         self.setup_diagnostic()
@@ -55,7 +54,7 @@ class FireEyeSystem:
             'walk': lambda: self.mode.walk_mode()
         }
 
-
+        time.sleep(0.5)
 
     def setup_sensors(self):
         # Barometer Sensor Setup
@@ -63,6 +62,7 @@ class FireEyeSystem:
             self.bus = smbus.SMBus(1) # Initializes communication with I2C devices on bus 1.
             self.barometer_sensor = BMP085.BMP085(busnum=1) # Initializes the BMP085 barometer sensor for temperature and pressure measurements.
         except Exception as e:
+            print("Error in setup_sensors:", e)
             error_handler.log_error(str(e), "FireEyeSystem.setup_sensors")
 
     def setup_camera(self):
@@ -70,6 +70,7 @@ class FireEyeSystem:
         try:
             self.camera = CameraControl()
         except Exception as e:
+            print("Error in setup_camera:", e)
             error_handler.log_error(str(e), "FireEyeSystem.setup_camera")
 
     def setup_database(self):
@@ -78,6 +79,7 @@ class FireEyeSystem:
             self.conn = self.database.connect_db()
             self.database.create_tables(self.conn)
         except Exception as e:
+            print("Error in setup_database:", e)
             error_handler.log_error(str(e), "FireEyeSystem.setup_database")
 
     def setup_diagnostic(self):
@@ -85,6 +87,7 @@ class FireEyeSystem:
         try:
             self.diagnostic = Diagnostic(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
         except Exception as e:
+            print("Error in setup_diagnostic:", e)
             error_handler.log_error(str(e), "FireEyeSystem.setup_diagnostic")
     
     def setup_modes(self):
@@ -92,6 +95,7 @@ class FireEyeSystem:
         try:
             self.mode = ModeSelection(self.conn, self.barometer_sensor, self.camera, self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN)
         except Exception as e:
+            print("Error in setup_modes:", e)
             error_handler.log_error(str(e), "FireEyeSystem.setup_modes")
 
     """ Sets up GPIO and initializes database. """
