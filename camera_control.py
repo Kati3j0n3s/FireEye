@@ -11,7 +11,7 @@ class CameraControl:
     def __init__(self, save_directory="/home/username/Pictures/test_images/test_image.jpg"):
         if CameraControl._instance is None:
             CameraControl._instance = Camera()
-        self.camera = Camera()
+        self.camera = CameraControl._instance
         self.save_directory = save_directory
 
     def save_image(self, image_path):
