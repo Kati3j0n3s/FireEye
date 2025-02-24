@@ -147,7 +147,7 @@ class LEDController:
 
 		self.clear_pwm()
 
-		pins = self.colors(color_name, None)
+		pins = self.colors[color_name]
 		if not pins:
 			raise ValueError(f"Color {color_name} not found.")
 		

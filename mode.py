@@ -8,12 +8,11 @@ from datetime import datetime
 # Importing Modules
 from LED import LEDController
 from collect_data import CollectData
-from database import FireEyeDatabase
 from diagnostic import Diagnostic
 
 class ModeSelection:
-    def __init__(self, conn, barometer_sensor, camera, D_BTN, M_BTN, TEMP_PIN, HUM_PIN):
-        self.conn = conn
+    def __init__(self, conn, barometer_sensor, camera, D_BTN, M_BTN, TEMP_PIN, HUM_PIN, sensor_id):
+        self.sensor_id = sensor_id
         self.barometer_sensor = barometer_sensor
         self.camera = camera
         self.D_BTN = D_BTN
@@ -24,7 +23,7 @@ class ModeSelection:
         # Creating instance of collect_data, camera_control
         self.collect_data = CollectData(barometer_sensor=self.barometer_sensor, sensor_id=self.sensor_id)
         self.diagnostic = Diagnostic(self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.barometer_sensor, self.camera)
-        #self.database = FireEyeDatabase(self)
+        self.led = LEDController()
 
     """
     Mode Select & Diagnostic/Reboot Function
