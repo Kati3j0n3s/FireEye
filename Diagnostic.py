@@ -6,6 +6,7 @@ time the button is pressed.
 import RPi.GPIO as GPIO
 import os
 import time
+import adafruit_gps
 
 from ReadData import *
 from CameraData import *
@@ -33,7 +34,7 @@ sensor_prefix = '28-'
 
 
 # Accept ALL GPIO pins as parameters
-def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera, max_retries = 3, timeout = 15):
+def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera, gps, max_retries = 3, timeout = 15):
     def run_check(start_time):
         print("initializing diagnostics...")
         # tracking if any error occurs
@@ -118,6 +119,21 @@ def diagnostic_check(Btn1, Btn2, TempPin, HumPin, barometer_sensor, camera, max_
                 diagnostic_failed = True
         except Exception as e:
             print(f"Diagnostic failed: Camera error. Error: {e}")
+            diagnostic_failed = True
+
+        if time.time() - start_time > timeout:
+            print("Diagnostic timedout during GPS check.")
+        try:
+            coordinates = get_gps_coordinates()
+            if coordinates:
+                lat, long = get_gps_coordinates()
+                print("GPS diagnostic: Success! GPS is functional and can capture data.")
+                int(f"GPS Coordinates: Latitude = {lat}, Longitude = {long}")
+            else:
+                print("Diagnostic failed: GPS could not capture data.")
+                diagnostic_failed = True
+        except Exception as e:
+            print(f"Diagnostic failed: GPS error. Error: {e}")
             diagnostic_failed = True
             
         return not diagnostic_failed
