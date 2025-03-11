@@ -93,7 +93,7 @@ class FireEyeSystem:
     def setup_modes(self):
         # Mode Selection
         try:
-            self.mode = ModeSelection(self.conn, self.barometer_sensor, self.camera, self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN, self.sensor_id)
+            self.mode = ModeSelection(self.conn, self.barometer_sensor, self.camera, self.D_BTN, self.M_BTN, self.TEMP_PIN, self.HUM_PIN)
         except Exception as e:
             print("Error in setup_modes:", e)
             error_handler.log_error(str(e), "FireEyeSystem.setup_modes")

@@ -11,8 +11,8 @@ from collect_data import CollectData
 from diagnostic import Diagnostic
 
 class ModeSelection:
-    def __init__(self, conn, barometer_sensor, camera, D_BTN, M_BTN, TEMP_PIN, HUM_PIN, sensor_id):
-        self.sensor_id = sensor_id
+    def __init__(self, conn, barometer_sensor, camera, D_BTN, M_BTN, TEMP_PIN, HUM_PIN):
+        self.conn = conn
         self.barometer_sensor = barometer_sensor
         self.camera = camera
         self.D_BTN = D_BTN
