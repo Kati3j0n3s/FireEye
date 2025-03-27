@@ -2,8 +2,11 @@ import RPi.GPIO as GPIO
 import time
 import Adafruit_DHT
 import math
+import adafruit_gps
 
 DHT_SENSOR = Adafruit_DHT.DHT11
+
+gps = None
 
 # Gets a single temp data value
 def read_temp(sensor_id):
@@ -75,3 +78,12 @@ def determine_danger_class(CBI):
     else:
         return 'Extreme (E)'
 
+def get_gps_coordinates():
+    global gps
+    gps.update()
+    if gps.has_fix:
+        lat = gps.latitude
+        long = gps.longitude
+        return lat, long
+    else:
+        return None
