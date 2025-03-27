@@ -91,13 +91,23 @@ def solid(color_name):
 		GPIO.output(pins[2], GPIO.LOW)
 	
 def stop():
+	# Used to work...
 	global pwm_instances
 	_stop_event.set()
 	time.sleep(0.1)
 	
 	for pwm in pwm_instances:
+		pwm.ChangeDutyCycle(0)
 		pwm.stop()
 	pwm_instances.clear()
+	
+	# global pwm_instances
+	# try:
+		# for pwm in pwm_instances:
+			# pwm.stop()
+		# pwm_instances.clear()
+	# except NameError:
+		# pass
 	
 	GPIO.output(RPin, GPIO.HIGH)
 	GPIO.output(GPin, GPIO.HIGH)
